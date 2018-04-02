@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">learningandroid</string>
+
+    <string name="activity_aidl">学习AIDL</string>
 </resources>

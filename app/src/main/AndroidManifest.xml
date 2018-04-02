@@ -16,9 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".aidl.client.BookManagerClientActivity" />
 
-        <service android:name=".aidl.server.BookManagerService" />
+        <activity android:name=".aidl.client.BookManagerClientActivity"
+            android:label="@string/activity_aidl"/>
+
+        <service
+            android:name=".aidl.server.BookManagerService"
+            android:process=":remote" />
     </application>
 
 </manifest>
