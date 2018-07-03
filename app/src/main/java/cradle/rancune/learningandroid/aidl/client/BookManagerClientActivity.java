@@ -37,7 +37,6 @@ public class BookManagerClientActivity extends BaseActivity implements View.OnCl
         setContentView(R.layout.activity_aidl_client);
         findViewById(R.id.add_book).setOnClickListener(this);
         findViewById(R.id.get_book_list).setOnClickListener(this);
-        findViewById(R.id.kill_server_process).setOnClickListener(this);
     }
 
     @Override
