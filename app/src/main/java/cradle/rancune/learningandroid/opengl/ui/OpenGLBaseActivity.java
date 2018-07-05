@@ -4,20 +4,21 @@ import android.opengl.GLSurfaceView;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 import cradle.rancune.commons.logging.Logger;
+import cradle.rancune.learningandroid.BaseActivity;
 import cradle.rancune.learningandroid.R;
-import cradle.rancune.learningandroid.base.BaseActivity;
+import cradle.rancune.learningandroid.opengl.SimpleRenderer;
+import cradle.rancune.learningandroid.opengl.renderer.RendererWrapper;
 import cradle.rancune.learningandroid.opengl.util.GLUtils;
 
 /**
  * Created by Rancune@126.com 2018/7/4.
  */
-public abstract class OpenGLBaseActivity extends BaseActivity implements GLSurfaceView.Renderer {
+public abstract class OpenGLBaseActivity extends BaseActivity {
 
     GLSurfaceView mSurfaceView;
+
+    RendererWrapper mRenderer;
 
     @Override
     public void initView() {
@@ -31,7 +32,8 @@ public abstract class OpenGLBaseActivity extends BaseActivity implements GLSurfa
         if (GLUtils.hasGLES20(this)) {
             Logger.d(TAG, "Max Vertex Attribute:" + GLUtils.getMaxVertexAttribute());
             mSurfaceView.setEGLContextClientVersion(2);
-            mSurfaceView.setRenderer(this);
+            mRenderer = new RendererWrapper(mContext, createRenderer());
+            mSurfaceView.setRenderer(mRenderer);
         } else {
             Toast.makeText(this, getString(R.string.opengl2_not_supported), Toast.LENGTH_SHORT).show();
             finish();
@@ -55,17 +57,9 @@ public abstract class OpenGLBaseActivity extends BaseActivity implements GLSurfa
     }
 
     @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        Logger.d(TAG, "onSurfaceCreated");
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
-    @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
-        Logger.d(TAG, "onSurfaceChanged, width=" + width + ",height=" + height);
-    }
-
-    @Override
-    public void onDrawFrame(GL10 gl) {
-    }
-
+    protected abstract Class<? extends SimpleRenderer> createRenderer();
 }

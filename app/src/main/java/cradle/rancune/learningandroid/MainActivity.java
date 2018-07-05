@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cradle.rancune.learningandroid.aidl.client.BookManagerClientActivity;
-import cradle.rancune.learningandroid.base.BaseActivity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGL01Activity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGL02Activity;
+import cradle.rancune.learningandroid.opengl.ui.OpenGL03Activity;
 
 public class MainActivity extends BaseActivity {
 
@@ -49,6 +49,11 @@ public class MainActivity extends BaseActivity {
         opengl02.title = R.string.activity_opengl02;
         opengl02.target = OpenGL02Activity.class;
         mPages.add(opengl02);
+
+        Page opengl03 = new Page();
+        opengl03.title = R.string.activity_opengl03;
+        opengl03.target = OpenGL03Activity.class;
+        mPages.add(opengl03);
 
         mAdapter.notifyDataSetChanged();
     }

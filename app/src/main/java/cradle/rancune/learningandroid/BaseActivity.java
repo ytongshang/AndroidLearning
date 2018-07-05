@@ -1,4 +1,4 @@
-package cradle.rancune.learningandroid.base;
+package cradle.rancune.learningandroid;
 
 import android.content.Context;
 import android.os.Bundle;

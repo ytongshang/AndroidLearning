@@ -32,6 +32,9 @@
         <activity android:name=".opengl.ui.OpenGL02Activity"
             android:theme="@style/AppTheme"/>
 
+        <activity android:name=".opengl.ui.OpenGL03Activity"
+            android:theme="@style/AppTheme"/>
+
 
     </application>
 

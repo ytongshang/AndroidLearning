@@ -17,7 +17,7 @@ import cradle.rancune.learningandroid.aidl.IBookManager;
 import cradle.rancune.learningandroid.aidl.IOnNewBookArrivedListener;
 import cradle.rancune.learningandroid.aidl.model.Book;
 import cradle.rancune.learningandroid.aidl.server.BookManagerService;
-import cradle.rancune.learningandroid.base.BaseActivity;
+import cradle.rancune.learningandroid.BaseActivity;
 
 /**
  * Created by Rancune@126.com 2018/4/1.

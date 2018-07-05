@@ -15,7 +15,6 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 import cradle.rancune.commons.base.Charsets;
-import cradle.rancune.commons.logging.Logger;
 import cradle.rancune.commons.util.IOUtils;
 
 /**
@@ -76,67 +75,5 @@ public class GLUtils {
             IOUtils.closeQuietly(in);
         }
         return "";
-    }
-
-    public static int buildProgram(String vertexShaderCode, String fragmentShaderCode) {
-        int vertextShader = compileVertexShader(vertexShaderCode);
-        int fragmentShader = compileFragmentShader(fragmentShaderCode);
-        return linkProgram(vertextShader, fragmentShader);
-    }
-
-    private static int compileVertexShader(String code) {
-        return compileShader(GLES20.GL_VERTEX_SHADER, code);
-    }
-
-    private static int compileFragmentShader(String code) {
-        return compileShader(GLES20.GL_FRAGMENT_SHADER, code);
-    }
-
-    private static int compileShader(int type, String code) {
-        if (code == null || code.isEmpty()) {
-            Logger.d(TAG, "Shader code is empty");
-            return -1;
-        }
-        int shader = GLES20.glCreateShader(type);
-        if (shader == 0) {
-            Logger.d(TAG, "Can not create shader");
-            return -1;
-        }
-        GLES20.glShaderSource(shader, code);
-        GLES20.glCompileShader(shader);
-        int[] status = new int[1];
-        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, status, 0);
-        if (status[0] == 0) {
-            Logger.d(TAG, "Can not compile shader");
-            GLES20.glDeleteShader(shader);
-            return -1;
-        }
-        return shader;
-    }
-
-    private static int linkProgram(int vertexShader, int fragmentShader) {
-        if (vertexShader <= 0 && fragmentShader <= 0) {
-            return -1;
-        }
-        int program = GLES20.glCreateProgram();
-        if (program == 0) {
-            Logger.d(TAG, "Can not create program");
-            return -1;
-        }
-        if (vertexShader > 0) {
-            GLES20.glAttachShader(program, vertexShader);
-        }
-        if (fragmentShader > 0) {
-            GLES20.glAttachShader(program, fragmentShader);
-        }
-        GLES20.glLinkProgram(program);
-        int[] status = new int[1];
-        GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, status, 0);
-        if (status[0] != GLES20.GL_TRUE) {
-            Logger.d(TAG, "Can not link program");
-            GLES20.glDeleteProgram(program);
-            return -1;
-        }
-        return program;
     }
 }
