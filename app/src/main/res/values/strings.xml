@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">learningandroid</string>
 
+    <string name="opengl2_not_supported">不支持OpenGLES 2.0!</string>
+
     <string name="activity_aidl">学习AIDL</string>
+    <string name="activity_opengl01">OpenGL01</string>
+    <string name="activity_opengl02">OpenGL多边形</string>
 </resources>

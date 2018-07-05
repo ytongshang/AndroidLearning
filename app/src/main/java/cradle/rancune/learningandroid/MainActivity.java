@@ -16,10 +16,22 @@ import java.util.List;
 
 import cradle.rancune.learningandroid.aidl.client.BookManagerClientActivity;
 import cradle.rancune.learningandroid.base.BaseActivity;
+import cradle.rancune.learningandroid.opengl.ui.OpenGL01Activity;
+import cradle.rancune.learningandroid.opengl.ui.OpenGL02Activity;
 
 public class MainActivity extends BaseActivity {
 
+    private Adapter mAdapter;
     private final List<Page> mPages = new ArrayList<>();
+
+    @Override
+    public void initView() {
+        setContentView(R.layout.activity_main);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        mAdapter = new Adapter();
+        recyclerView.setAdapter(mAdapter);
+    }
 
     @Override
     public void initData() {
@@ -27,14 +39,18 @@ public class MainActivity extends BaseActivity {
         aidl.title = R.string.activity_aidl;
         aidl.target = BookManagerClientActivity.class;
         mPages.add(aidl);
-    }
 
-    @Override
-    public void initView() {
-        setContentView(R.layout.activity_main);
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(new Adapter());
+        Page opengl01 = new Page();
+        opengl01.title = R.string.activity_opengl01;
+        opengl01.target = OpenGL01Activity.class;
+        mPages.add(opengl01);
+
+        Page opengl02 = new Page();
+        opengl02.title = R.string.activity_opengl02;
+        opengl02.target = OpenGL02Activity.class;
+        mPages.add(opengl02);
+
+        mAdapter.notifyDataSetChanged();
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {

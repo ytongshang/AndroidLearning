@@ -27,16 +27,16 @@ public class BookManagerClientActivity extends BaseActivity implements View.OnCl
     private IBookManager mBookManager;
 
     @Override
-    public void initData() {
-        Intent intent = new Intent(this, BookManagerService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
     public void initView() {
         setContentView(R.layout.activity_aidl_client);
         findViewById(R.id.add_book).setOnClickListener(this);
         findViewById(R.id.get_book_list).setOnClickListener(this);
+    }
+
+    @Override
+    public void initData() {
+        Intent intent = new Intent(this, BookManagerService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class BookManagerClientActivity extends BaseActivity implements View.OnCl
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.add_book:{
+            case R.id.add_book: {
                 if (mBookManager != null) {
                     try {
                         String timeStamp = String.valueOf(SystemClock.uptimeMillis());
@@ -67,7 +67,7 @@ public class BookManagerClientActivity extends BaseActivity implements View.OnCl
                 }
                 break;
             }
-            case R.id.get_book_list:{
+            case R.id.get_book_list: {
                 if (mBookManager != null) {
                     List<Book> list = null;
                     try {

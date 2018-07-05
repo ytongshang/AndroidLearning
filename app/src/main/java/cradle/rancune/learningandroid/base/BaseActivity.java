@@ -1,5 +1,6 @@
 package cradle.rancune.learningandroid.base;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -10,17 +11,19 @@ import android.support.v7.app.AppCompatActivity;
 public abstract class BaseActivity extends AppCompatActivity {
 
     protected final String TAG = getClass().getSimpleName();
+    protected Context mContext;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initData();
+        mContext = this;
         initView();
+        initData();
     }
 
-    public abstract void initData();
-
     public abstract void initView();
+
+    public abstract void initData();
 
     @Override
     protected void onStart() {
