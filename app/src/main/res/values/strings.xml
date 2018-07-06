@@ -7,4 +7,6 @@
     <string name="activity_opengl01">OpenGL01</string>
     <string name="activity_opengl02">OpenGL三角形</string>
     <string name="activity_opengl03">OpenGL多彩三角形</string>
+    <string name="activity_opengl04">OpenGL形状</string>
+    <string name="activity_opengl05">OpenGL圆形</string>
 </resources>

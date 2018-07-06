@@ -29,10 +29,19 @@
             android:name=".opengl.ui.OpenGL01Activity"
             android:theme="@style/AppTheme" />
 
-        <activity android:name=".opengl.ui.OpenGL02Activity"
-            android:theme="@style/AppTheme"/>
+        <activity
+            android:name=".opengl.ui.OpenGL02Activity"
+            android:theme="@style/AppTheme" />
 
-        <activity android:name=".opengl.ui.OpenGL03Activity"
+        <activity
+            android:name=".opengl.ui.OpenGL03Activity"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".opengl.ui.OpenGL04Activity"
+            android:theme="@style/AppTheme" />
+
+        <activity android:name=".opengl.ui.OpenGL05Activity"
             android:theme="@style/AppTheme"/>
 
 

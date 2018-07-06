@@ -1,4 +1,4 @@
-package cradle.rancune.learningandroid.opengl.renderer;
+package cradle.rancune.learningandroid.opengl.renderer.shape;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -18,7 +18,7 @@ import cradle.rancune.learningandroid.opengl.util.GLUtils;
 public class Triangle extends SimpleRenderer {
     private static final int COORDS_PER_VERTEX = 3;
 
-    private final float vertices[] = {
+    private final float[] vertices = {
             0.0f, 0.5f, 0.0f, // top
             -0.5f, 0.0f, 0.0f, // bottom left
             0.5f, 0.0f, 0.0f  // bottom right

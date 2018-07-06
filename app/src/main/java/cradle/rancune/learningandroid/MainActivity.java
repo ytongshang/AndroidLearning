@@ -18,6 +18,8 @@ import cradle.rancune.learningandroid.aidl.client.BookManagerClientActivity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGL01Activity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGL02Activity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGL03Activity;
+import cradle.rancune.learningandroid.opengl.ui.OpenGL04Activity;
+import cradle.rancune.learningandroid.opengl.ui.OpenGL05Activity;
 
 public class MainActivity extends BaseActivity {
 
@@ -54,6 +56,16 @@ public class MainActivity extends BaseActivity {
         opengl03.title = R.string.activity_opengl03;
         opengl03.target = OpenGL03Activity.class;
         mPages.add(opengl03);
+
+        Page opengl04 = new Page();
+        opengl04.title = R.string.activity_opengl04;
+        opengl04.target = OpenGL04Activity.class;
+        mPages.add(opengl04);
+
+        Page opengl05 = new Page();
+        opengl05.title = R.string.activity_opengl05;
+        opengl05.target = OpenGL05Activity.class;
+        mPages.add(opengl05);
 
         mAdapter.notifyDataSetChanged();
     }

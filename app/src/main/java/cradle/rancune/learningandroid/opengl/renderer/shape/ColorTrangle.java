@@ -1,4 +1,4 @@
-package cradle.rancune.learningandroid.opengl.renderer;
+package cradle.rancune.learningandroid.opengl.renderer.shape;
 
 import android.content.Context;
 import android.opengl.GLES20;
