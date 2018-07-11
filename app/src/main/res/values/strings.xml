@@ -3,10 +3,18 @@
 
     <string name="opengl2_not_supported">不支持OpenGLES 2.0!</string>
 
+    <!--main-->
     <string name="activity_aidl">学习AIDL</string>
-    <string name="activity_opengl01">OpenGL01</string>
-    <string name="activity_opengl02">OpenGL三角形</string>
-    <string name="activity_opengl03">OpenGL多彩三角形</string>
-    <string name="activity_opengl04">OpenGL形状</string>
-    <string name="activity_opengl05">OpenGL圆形</string>
+    <string name="activity_opengl">OpenglES</string>
+
+    <!--opengl-->
+    <string name="activity_opengl1">OpenGL简介</string>
+    <string name="activity_opengl2">OpenGL三角形</string>
+    <string name="activity_opengl3">OpenGL多彩三角形</string>
+    <string name="activity_opengl4">OpenGL形状</string>
+    <string name="activity_opengl5">OpenGL圆形</string>
+    <string name="activity_opengl6">OpenGL DrawElements</string>
+    <string name="activity_opengl7">OpenGL初识纹理</string>
+
+    <string name="activity_opengl8">OpenGL相机</string>
 </resources>

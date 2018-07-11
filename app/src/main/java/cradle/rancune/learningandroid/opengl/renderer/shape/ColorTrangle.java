@@ -9,8 +9,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import cradle.rancune.learningandroid.opengl.GLProgram;
-import cradle.rancune.learningandroid.opengl.SimpleRenderer;
-import cradle.rancune.learningandroid.opengl.util.GLUtils;
+import cradle.rancune.learningandroid.opengl.renderer.SimpleRenderer;
+import cradle.rancune.learningandroid.opengl.util.GLHelper;
 
 /**
  * Created by Rancune@126.com 2018/7/5.
@@ -36,10 +36,10 @@ public class ColorTrangle extends SimpleRenderer {
 
     public ColorTrangle(Context context) {
         super(context);
-        vertexBuffer = GLUtils.createFloatBuffer(vertices);
-        colorBuffer = GLUtils.createFloatBuffer(colors);
-        mProgram = GLProgram.of(GLUtils.readFromAssets(context, "shader/colortriangle.vert"),
-                GLUtils.readFromAssets(context, "shader/colortriangle.frag"));
+        vertexBuffer = GLHelper.createFloatBuffer(vertices);
+        colorBuffer = GLHelper.createFloatBuffer(colors);
+        mProgram = GLProgram.of(GLHelper.readFromAssets(context, "shader/colortriangle.vert"),
+                GLHelper.readFromAssets(context, "shader/colortriangle.frag"));
     }
 
     @Override

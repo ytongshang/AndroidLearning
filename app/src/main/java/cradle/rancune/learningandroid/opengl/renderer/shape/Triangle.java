@@ -9,8 +9,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import cradle.rancune.learningandroid.opengl.GLProgram;
-import cradle.rancune.learningandroid.opengl.SimpleRenderer;
-import cradle.rancune.learningandroid.opengl.util.GLUtils;
+import cradle.rancune.learningandroid.opengl.renderer.SimpleRenderer;
+import cradle.rancune.learningandroid.opengl.util.GLHelper;
 
 /**
  * Created by Rancune@126.com 2018/7/5.
@@ -33,15 +33,15 @@ public class Triangle extends SimpleRenderer {
 
     public Triangle(Context context) {
         super(context);
-        vertexBuffer = GLUtils.createFloatBuffer(vertices);
+        vertexBuffer = GLHelper.createFloatBuffer(vertices);
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         super.onSurfaceCreated(gl, config);
         GLES20.glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-        mProgram = GLProgram.of(GLUtils.readFromAssets(mContext, "shader/basic.vert"),
-                GLUtils.readFromAssets(mContext, "shader/basic.frag"));
+        mProgram = GLProgram.of(GLHelper.readFromAssets(mContext, "shader/basic.vert"),
+                GLHelper.readFromAssets(mContext, "shader/basic.frag"));
     }
 
     @Override

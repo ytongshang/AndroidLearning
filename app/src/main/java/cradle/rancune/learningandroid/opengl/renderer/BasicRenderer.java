@@ -5,8 +5,6 @@ import android.content.Context;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import cradle.rancune.learningandroid.opengl.SimpleRenderer;
-
 /**
  * Created by Rancune@126.com 2018/7/5.
  */

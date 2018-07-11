@@ -3,9 +3,8 @@ package cradle.rancune.learningandroid.opengl.renderer.shape;
 import android.content.Context;
 import android.opengl.GLES20;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -15,35 +14,43 @@ import cradle.rancune.learningandroid.opengl.renderer.SimpleRenderer;
 import cradle.rancune.learningandroid.opengl.util.GLHelper;
 
 /**
- * Created by Rancune@126.com 2018/7/6.
+ * Created by Rancune@126.com 2018/7/10.
  */
-public class Circle extends SimpleRenderer {
-    private static final int SLASH = 60;
+public class DrawElements extends SimpleRenderer {
 
+    private final float[] mVertices = {
+            -1.0f, 1.0f, 0.0f,
+            -0.5f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
+            0.5f, 0.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+    };
     private FloatBuffer mVertexBuffer;
 
     private final float[] mColor = {
             1.0f, 1.0f, 1.0f, 1.0f
     };
-    private FloatBuffer mColorBuffer;
 
-    private final float[] mVertices;
+    private byte[] mIndices = {
+            0, 1, 2, 3, 4,
+    };
+    private ByteBuffer mIndiceBuffer;
 
     private GLProgram mGLProgram;
 
-    public Circle(Context context) {
+    public DrawElements(Context context) {
         super(context);
-        mVertices = createPositions(0.5f, SLASH);
         mVertexBuffer = GLHelper.createFloatBuffer(mVertices);
-        mColorBuffer = GLHelper.createFloatBuffer(mColor);
+        mIndiceBuffer = (ByteBuffer) ByteBuffer.allocateDirect(mIndices.length).put(mIndices).position(0);
         mGLProgram = GLProgram.of(GLHelper.readFromAssets(context, "shader/basic.vert"),
                 GLHelper.readFromAssets(context, "shader/basic.frag"));
+
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         super.onSurfaceCreated(gl, config);
-        GLES20.glClearColor(0.0f, 0, 0.0f, 0.0f);
+        GLES20.glClearColor(0.f, 0.f, 0.f, 1.0f);
     }
 
     @Override
@@ -64,13 +71,10 @@ public class Circle extends SimpleRenderer {
         super.draw();
         GLES20.glUseProgram(mGLProgram.getProgram());
 
-        int colorIndex = mGLProgram.getUniformLocation("vColor");
-        GLES20.glUniform4fv(colorIndex, 1, mColorBuffer);
-
-        int positionIndex = mGLProgram.getAttributeLocation("vPosition");
-        GLES20.glEnableVertexAttribArray(positionIndex);
+        int pointIndex = mGLProgram.getAttributeLocation("vPosition");
+        GLES20.glEnableVertexAttribArray(pointIndex);
         GLES20.glVertexAttribPointer(
-                positionIndex,
+                pointIndex,
                 3,
                 GLES20.GL_FLOAT,
                 false,
@@ -78,24 +82,14 @@ public class Circle extends SimpleRenderer {
                 mVertexBuffer
         );
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, mVertices.length / 3);
-    }
+        int colorIndex = mGLProgram.getUniformLocation("vColor");
+        GLES20.glUniform4fv(colorIndex, 1, mColor, 0);
 
-    private float[] createPositions(float radius, int n) {
-        List<Float> list = new ArrayList<>();
-        list.add(0.0f);
-        list.add(0.0f);
-        list.add(0.0f);
-        float ang = (float) (360 / n);
-        for (int i = 0; i < 360 + ang; i += ang) {
-            list.add((float) (radius * Math.cos(i * Math.PI / 180)));
-            list.add((float) (radius * Math.sin(i * Math.PI / 180)));
-            list.add(0.0f);
-        }
-        float[] f = new float[list.size()];
-        for (int i = 0; i < f.length; ++i) {
-            f[i] = list.get(i);
-        }
-        return f;
+        GLES20.glDrawElements(
+                GLES20.GL_TRIANGLE_STRIP,
+                mIndices.length,
+                GLES20.GL_UNSIGNED_BYTE,
+                mIndiceBuffer
+        );
     }
 }

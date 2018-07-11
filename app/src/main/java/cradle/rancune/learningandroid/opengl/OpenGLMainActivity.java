@@ -1,6 +1,5 @@
-package cradle.rancune.learningandroid;
+package cradle.rancune.learningandroid.opengl;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -14,10 +13,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import cradle.rancune.learningandroid.aidl.client.BookManagerClientActivity;
-import cradle.rancune.learningandroid.opengl.OpenGLMainActivity;
+import cradle.rancune.learningandroid.BaseActivity;
+import cradle.rancune.learningandroid.R;
+import cradle.rancune.learningandroid.opengl.ui.OpenGLBasisActivity;
+import cradle.rancune.learningandroid.opengl.ui.OpenGLCameraActivity;
 
-public class MainActivity extends BaseActivity {
+public class OpenGLMainActivity extends BaseActivity {
 
     private Adapter mAdapter;
     private final List<Page> mPages = new ArrayList<>();
@@ -33,15 +34,18 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void initData() {
-        Page aidl = new Page();
-        aidl.title = R.string.activity_aidl;
-        aidl.target = BookManagerClientActivity.class;
-        mPages.add(aidl);
+        for (int i = 1; i < 8; i++) {
+            Page page = new Page();
+            String identifier = "activity_opengl" + i;
+            page.title = mContext.getResources().getIdentifier(identifier, "string", mContext.getPackageName());
+            page.intent = OpenGLBasisActivity.RendererOf(mContext, i);
+            mPages.add(page);
+        }
 
-        Page opengl01 = new Page();
-        opengl01.title = R.string.activity_opengl;
-        opengl01.target = OpenGLMainActivity.class;
-        mPages.add(opengl01);
+        Page page = new Page();
+        page.title = R.string.activity_opengl8;
+        page.intent = new Intent(mContext, OpenGLCameraActivity.class);
+        mPages.add(page);
 
         mAdapter.notifyDataSetChanged();
     }
@@ -51,7 +55,7 @@ public class MainActivity extends BaseActivity {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(MainActivity.this).inflate(R.layout.reycle_item_main_page, parent, false);
+            View v = LayoutInflater.from(OpenGLMainActivity.this).inflate(R.layout.reycle_item_main_page, parent, false);
             return new ViewHolder(v);
         }
 
@@ -85,8 +89,7 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             if (mPage != null) {
-                Intent intent = new Intent(MainActivity.this, mPage.target);
-                startActivity(intent);
+                startActivity(mPage.intent);
             }
         }
     }
@@ -95,7 +98,6 @@ public class MainActivity extends BaseActivity {
 
         @StringRes
         int title;
-        Class<? extends Activity> target;
         Intent intent;
     }
 }

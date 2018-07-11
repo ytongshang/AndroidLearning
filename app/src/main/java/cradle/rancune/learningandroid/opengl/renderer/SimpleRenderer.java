@@ -1,4 +1,4 @@
-package cradle.rancune.learningandroid.opengl;
+package cradle.rancune.learningandroid.opengl.renderer;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;

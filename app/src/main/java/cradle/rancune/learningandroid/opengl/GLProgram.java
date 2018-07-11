@@ -76,7 +76,7 @@ public class GLProgram {
         GLES20.glCompileShader(shader);
         int[] status = new int[1];
         GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, status, 0);
-        if (status[0] == 0) {
+        if (status[0] != GLES20.GL_TRUE) {
             Logger.d(TAG, "Can not compile shader");
             GLES20.glDeleteShader(shader);
             return -1;

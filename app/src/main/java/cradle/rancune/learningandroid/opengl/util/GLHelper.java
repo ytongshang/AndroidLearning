@@ -3,7 +3,9 @@ package cradle.rancune.learningandroid.opengl.util;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.Bitmap;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,15 +17,16 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 import cradle.rancune.commons.base.Charsets;
+import cradle.rancune.commons.logging.Logger;
 import cradle.rancune.commons.util.IOUtils;
 
 /**
  * Created by Rancune@126.com 2018/7/3.
  */
-public class GLUtils {
-    private static final String TAG = "GLUtils";
+public class GLHelper {
+    private static final String TAG = "GLHelper";
 
-    private GLUtils() {
+    private GLHelper() {
 
     }
 
@@ -75,5 +78,28 @@ public class GLUtils {
             IOUtils.closeQuietly(in);
         }
         return "";
+    }
+
+    public static int loadTexture(Bitmap bitmap) {
+        if (bitmap == null || bitmap.isRecycled()) {
+            Logger.d(TAG, "load texture failed, bitmap is invalid");
+            return -1;
+        }
+        final int[] textureObjectids = new int[1];
+        GLES20.glGenTextures(1, textureObjectids, 0);
+        if (textureObjectids[0] != GLES20.GL_TRUE) {
+            Logger.d(TAG, "glGenTextures failed");
+            return -1;
+        }
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureObjectids[0]);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+
+        return textureObjectids[0];
     }
 }

@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cradle.rancune.learningandroid">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,6 +22,7 @@
             </intent-filter>
         </activity>
 
+        <!--AIDL-->
         <activity
             android:name=".aidl.client.BookManagerClientActivity"
             android:label="@string/activity_aidl" />
@@ -25,24 +31,14 @@
             android:name=".aidl.server.BookManagerService"
             android:process=":remote" />
 
-        <activity
-            android:name=".opengl.ui.OpenGL01Activity"
-            android:theme="@style/AppTheme" />
+        <!--OpenGL-->
+        <activity android:name=".opengl.OpenGLMainActivity"
+            android:label="@string/activity_opengl"/>
 
         <activity
-            android:name=".opengl.ui.OpenGL02Activity"
+            android:name=".opengl.ui.OpenGLBasisActivity"
             android:theme="@style/AppTheme" />
-
-        <activity
-            android:name=".opengl.ui.OpenGL03Activity"
-            android:theme="@style/AppTheme" />
-
-        <activity
-            android:name=".opengl.ui.OpenGL04Activity"
-            android:theme="@style/AppTheme" />
-
-        <activity android:name=".opengl.ui.OpenGL05Activity"
-            android:theme="@style/AppTheme"/>
+        <activity android:name=".opengl.ui.OpenGLCameraActivity" />
 
 
     </application>
