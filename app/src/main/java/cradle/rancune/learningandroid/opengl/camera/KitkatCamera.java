@@ -1,6 +1,7 @@
 package cradle.rancune.learningandroid.opengl.camera;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -153,10 +154,23 @@ public class KitkatCamera extends AbstractCamera implements Camera.PreviewCallba
 //        }
     }
 
+    public Point getPreviewSize() {
+        return new Point(mCameraWidth, mCameraHeight);
+    }
+
+    public int getPreviewWidth() {
+        return mCameraWidth;
+    }
+
+    public int getPreviewHeight() {
+        return mCameraHeight;
+    }
+
     private int translate(FACING facing) {
         if (facing == FACING.FACING_BACK) {
             return Camera.CameraInfo.CAMERA_FACING_BACK;
         }
         return Camera.CameraInfo.CAMERA_FACING_FRONT;
     }
+
 }

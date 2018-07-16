@@ -52,4 +52,8 @@ public class AbstractCamera implements ICamera {
     public void release() {
 
     }
+
+    public int getDisplayOrientation() {
+        return mDisplayOrientation;
+    }
 }

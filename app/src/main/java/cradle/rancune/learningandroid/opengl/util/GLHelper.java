@@ -3,9 +3,8 @@ package cradle.rancune.learningandroid.opengl.util;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
-import android.graphics.Bitmap;
 import android.opengl.GLES20;
-import android.opengl.GLUtils;
+import android.opengl.Matrix;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,26 +79,46 @@ public class GLHelper {
         return "";
     }
 
-    public static int loadTexture(Bitmap bitmap) {
-        if (bitmap == null || bitmap.isRecycled()) {
-            Logger.d(TAG, "load texture failed, bitmap is invalid");
-            return -1;
-        }
+    public static int loadTexture() {
         final int[] textureObjectids = new int[1];
         GLES20.glGenTextures(1, textureObjectids, 0);
         if (textureObjectids[0] != GLES20.GL_TRUE) {
             Logger.d(TAG, "glGenTextures failed");
             return -1;
         }
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureObjectids[0]);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
-
         return textureObjectids[0];
+    }
+
+    public static void getShowMatrix(float[] matrix, int imgWidth, int imgHeight,
+                                     int viewWidth, int viewHeight) {
+        if (imgHeight > 0 && imgWidth > 0 && viewWidth > 0 && viewHeight > 0) {
+            float sWhView = (float) viewWidth / viewHeight;
+            float sWhImg = (float) imgWidth / imgHeight;
+            float[] projection = new float[16];
+            float[] camera = new float[16];
+            if (sWhImg > sWhView) {
+                Matrix.orthoM(projection, 0, -sWhView / sWhImg, sWhView / sWhImg, -1, 1, 1, 3);
+            } else {
+                Matrix.orthoM(projection, 0, -1, 1, -sWhImg / sWhView, sWhImg / sWhView, 1, 3);
+            }
+            Matrix.setLookAtM(camera, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);
+            Matrix.multiplyMM(matrix, 0, projection, 0, camera, 0);
+        }
+    }
+
+    public static float[] rotate(float[] m, float angle) {
+        Matrix.rotateM(m, 0, angle, 0, 0, 1);
+        return m;
+    }
+
+    public static float[] flip(float[] m, boolean x, boolean y) {
+        if (x || y) {
+            Matrix.scaleM(m, 0, x ? -1 : 1, y ? -1 : 1, 1);
+        }
+        return m;
     }
 }

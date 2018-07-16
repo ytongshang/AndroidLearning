@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
 import java.nio.FloatBuffer;
@@ -46,17 +47,26 @@ public class Sample2D extends SimpleRenderer {
     private Bitmap mBitmap;
     private int mTexture;
 
+    private int mVertexPosition;
+    private int mCoordPosition;
+    private int mMatrxPosition;
+    private int mTexturePosition;
+
     public Sample2D(Context context) {
         super(context);
         mVertexBuffer = GLHelper.createFloatBuffer(mVertices);
         mCoordBuffer = GLHelper.createFloatBuffer(mCoords);
+        Matrix.setIdentityM(mMatrix, 0);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         mBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.lenna, options);
-        mTexture = GLHelper.loadTexture(mBitmap);
-        Matrix.setIdentityM(mMatrix, 0);
+        mTexture = GLHelper.loadTexture();
         mGLProgram = GLProgram.of(GLHelper.readFromAssets(context, "shader/texture.vert"),
                 GLHelper.readFromAssets(context, "shader/texture.frag"));
+        mVertexPosition = mGLProgram.getAttributeLocation("aPosition");
+        mCoordPosition = mGLProgram.getAttributeLocation("aCoordinate");
+        mTexturePosition = mGLProgram.getUniformLocation("sampleTexture");
+        mMatrxPosition = mGLProgram.getUniformLocation("uMatrix");
     }
 
     @Override
@@ -106,18 +116,16 @@ public class Sample2D extends SimpleRenderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glUseProgram(mGLProgram.getProgram());
 
-        int matrixIndex = mGLProgram.getUniformLocation("uMatrix");
-        GLES20.glUniformMatrix4fv(matrixIndex, 1, false, mMatrix, 0);
-        int positionIndex = mGLProgram.getAttributeLocation("aPosition");
-        GLES20.glEnableVertexAttribArray(positionIndex);
-        int coorIndex = mGLProgram.getAttributeLocation("aCoordinate");
-        GLES20.glEnableVertexAttribArray(coorIndex);
-        int textureIndex = mGLProgram.getUniformLocation("sampleTexture");
-        GLES20.glUniform1i(textureIndex, 0);
-        mTexture = GLHelper.loadTexture(mBitmap);
+        GLES20.glUniformMatrix4fv(mMatrxPosition, 1, false, mMatrix, 0);
 
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTexture);
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mBitmap, 0);
+        GLES20.glUniform1i(mTexturePosition, 0);
+
+        GLES20.glEnableVertexAttribArray(mVertexPosition);
         GLES20.glVertexAttribPointer(
-                positionIndex,
+                mVertexPosition,
                 2,
                 GLES20.GL_FLOAT,
                 false,
@@ -125,8 +133,9 @@ public class Sample2D extends SimpleRenderer {
                 mVertexBuffer
         );
 
+        GLES20.glEnableVertexAttribArray(mCoordPosition);
         GLES20.glVertexAttribPointer(
-                coorIndex,
+                mCoordPosition,
                 2,
                 GLES20.GL_FLOAT,
                 false,
@@ -135,5 +144,8 @@ public class Sample2D extends SimpleRenderer {
         );
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+
+        GLES20.glDisableVertexAttribArray(mVertexPosition);
+        GLES20.glDisableVertexAttribArray(mCoordPosition);
     }
 }

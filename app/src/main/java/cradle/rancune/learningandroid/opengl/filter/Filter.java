@@ -1,32 +1,86 @@
-package cradle.rancune.learningandroid.opengl;
+package cradle.rancune.learningandroid.opengl.filter;
 
+import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
+
+import java.nio.FloatBuffer;
 
 import cradle.rancune.commons.logging.Logger;
+import cradle.rancune.learningandroid.opengl.util.GLHelper;
 
 /**
- * Created by Rancune@126.com 2018/7/5.
+ * Created by Rancune@126.com 2018/7/16.
  */
-public class GLProgram {
-    private static final String TAG = "GLProgram";
+@SuppressWarnings({"FieldCanBeLocal", "WeakerAccess"})
+public abstract class Filter {
+    private static final String TAG = "Filter";
+
+    protected final float[] mVertices = {
+            -1.0f, 1.0f,
+            -1.0f, -1.0f,
+            1.0f, 1.0f,
+            1.0f, -1.0f,
+    };
+    protected FloatBuffer mVertexBuffer;
+
+    protected final float[] mCoords = {
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            1.0f, 0.0f,
+            1.0f, 1.0f
+    };
+    protected FloatBuffer mCoordBuffer;
 
     protected int mProgram;
-
     protected int mVertexShader;
-
     protected int mFragmentShaer;
 
-    public static GLProgram of(String vertexCode, String fragmentCode) {
-        return new GLProgram(vertexCode, fragmentCode);
+    protected float[] mMatrix = new float[16];
+    protected float[] mCoordMatrix = new float[16];
+
+    protected Context mContext;
+
+    public Filter(Context context) {
+        mContext = context;
+        mVertexBuffer = GLHelper.createFloatBuffer(mVertices);
+        mCoordBuffer = GLHelper.createFloatBuffer(mCoords);
+        Matrix.setIdentityM(mMatrix, 0);
+        Matrix.setIdentityM(mCoordMatrix, 0);
     }
 
-    public GLProgram(String vertexShaderCode, String fragmentShaderCode) {
-        mVertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        mFragmentShaer = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+    public final void performCreate() {
+        onCreate();
+    }
+
+    public abstract void onCreate();
+
+    public abstract void onSizeChanged(int width, int height);
+
+    public final void performDraw() {
+        clearBuffer();
+        GLES20.glUseProgram(mProgram);
+        onDraw();
+    }
+
+    public abstract void onDraw();
+
+    protected void createProgram(String vertexCode, String fragmentCode) {
+        mVertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexCode);
+        mFragmentShaer = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentCode);
         mProgram = linkProgram(mVertexShader, mFragmentShaer);
     }
 
-    public int getAttributeLocation(String name) {
+    protected void createFromAssets(String vertexPath, String fragmentPath) {
+        createProgram(GLHelper.readFromAssets(mContext, vertexPath),
+                GLHelper.readFromAssets(mContext, fragmentPath));
+    }
+
+    protected void clearBuffer() {
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+    }
+
+    protected int getAttributeLocation(String name) {
         int location = GLES20.glGetAttribLocation(mProgram, name);
         if (location == -1) {
             Logger.d(TAG, "Attribute :" + name + " not found");
@@ -34,32 +88,12 @@ public class GLProgram {
         return location;
     }
 
-    public int getUniformLocation(String name) {
+    protected int getUniformLocation(String name) {
         int location = GLES20.glGetUniformLocation(mProgram, name);
         if (location == -1) {
             Logger.d(TAG, "uniform :" + name + " not found");
         }
         return location;
-    }
-
-    public void setIntUniform(String name, int value) {
-        if (mProgram == -1) {
-            return;
-        }
-        int location = getUniformLocation(name);
-        if (location != -1) {
-            GLES20.glUniform1i(location, value);
-        }
-    }
-
-    public void setFloatUniform(String name, float value) {
-        if (mProgram == -1) {
-            return;
-        }
-        int location = GLES20.glGetUniformLocation(mProgram, name);
-        if (location != -1) {
-            GLES20.glUniform1f(location, value);
-        }
     }
 
     private static int compileShader(int type, String code) {
@@ -110,16 +144,4 @@ public class GLProgram {
         return program;
     }
 
-
-    public int getProgram() {
-        return mProgram;
-    }
-
-    public int getVertexShader() {
-        return mVertexShader;
-    }
-
-    public int getFragmentShaer() {
-        return mFragmentShaer;
-    }
 }
