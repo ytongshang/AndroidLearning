@@ -1,7 +1,7 @@
 package cradle.rancune.learningandroid.opengl.camera;
 
 import android.content.Context;
-import android.graphics.Point;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -15,23 +15,53 @@ import cradle.rancune.commons.logging.Logger;
 /**
  * Created by Rancune@126.com 2018/7/11.
  */
-public class KitkatCamera extends AbstractCamera implements Camera.PreviewCallback {
+public class KitkatCamera implements ICamera, Camera.PreviewCallback {
     private static final String TAG = "KitkatCamera";
 
     private static final int PREVIEW_BUFFER_COUNT = 3;
 
+    protected Context mContext;
+    private FACING mTargetFacing;
+    private Config mTargetConfig;
+    private PreviewFrameCallback mPreviewFrameCallback;
+    private SurfaceTexture mSurfaceTexture;
+
+    private FACING mFacing;
+    private int mCameraWidth;
+    private int mCameraHeight;
+    private int mDisplayOrientation = 0;
+
     private Camera mCamera;
     private Camera.CameraInfo mCameraInfo;
-    private int mCameraId;
     private byte[][] mPreviewCallbackBuffer;
 
     public KitkatCamera(Context context) {
-        super(context);
+        mContext = context;
+    }
+
+    @Override
+    public void setTargetFacing(FACING facing) {
+        mTargetFacing = facing;
+    }
+
+    @Override
+    public void setTargetConfig(Config targetConfig) {
+        mTargetConfig = targetConfig;
+    }
+
+    @Override
+    public void setPreviewTexture(SurfaceTexture texture) {
+        mSurfaceTexture = texture;
+    }
+
+    @Override
+    public void setPreviewFrameCallback(PreviewFrameCallback callback) {
+        mPreviewFrameCallback = callback;
     }
 
     @Override
     public void startPreview() {
-        if (mTargetFacing != mFacing) {
+        if (mTargetFacing != mFacing && mCamera != null) {
             release();
         }
 
@@ -40,9 +70,8 @@ public class KitkatCamera extends AbstractCamera implements Camera.PreviewCallba
         int numCameras = Camera.getNumberOfCameras();
         for (int i = 0; i < numCameras; i++) {
             Camera.getCameraInfo(i, mCameraInfo);
-            if (mCameraInfo.facing == translate(mTargetFacing)) {
+            if (mCameraInfo.facing == translateFacing(mTargetFacing)) {
                 mCamera = Camera.open(i);
-                mCameraId = i;
                 mFacing = mTargetFacing;
                 break;
             }
@@ -92,17 +121,17 @@ public class KitkatCamera extends AbstractCamera implements Camera.PreviewCallba
         }
 
         // 4. 设置预览大小
-        mCameraWidth = mConfig.mWidth;
-        mCameraHeight = mConfig.mHeight;
+        mCameraWidth = mTargetConfig.mWidth;
+        mCameraHeight = mTargetConfig.mHeight;
         Camera.Size size = parameters.getPreferredPreviewSizeForVideo();
         if (size != null) {
             mCameraWidth = size.width;
             mCameraHeight = size.height;
         }
         for (Camera.Size s : parameters.getSupportedPreviewSizes()) {
-            if (s.width == mConfig.mWidth && s.height == mConfig.mHeight) {
-                mCameraWidth = mConfig.mWidth;
-                mCameraHeight = mConfig.mHeight;
+            if (s.width == mTargetConfig.mWidth && s.height == mTargetConfig.mHeight) {
+                mCameraWidth = mTargetConfig.mWidth;
+                mCameraHeight = mTargetConfig.mHeight;
                 break;
             }
         }
@@ -110,12 +139,12 @@ public class KitkatCamera extends AbstractCamera implements Camera.PreviewCallba
         mCamera.setParameters(parameters);
 
         // 5. 开始预览
-//        if (mPreviewCallbackBuffer == null) {
-//            mPreviewCallbackBuffer = new byte[PREVIEW_BUFFER_COUNT][mCameraWidth * mCameraHeight * 3 / 2];
-//        }
-//        for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++) {
-//            mCamera.addCallbackBuffer(mPreviewCallbackBuffer[i]);
-//        }
+        if (mPreviewCallbackBuffer == null) {
+            mPreviewCallbackBuffer = new byte[PREVIEW_BUFFER_COUNT][mCameraWidth * mCameraHeight * 3 / 2];
+        }
+        for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++) {
+            mCamera.addCallbackBuffer(mPreviewCallbackBuffer[i]);
+        }
         mCamera.setPreviewCallback(this);
         //mCamera.setPreviewCallbackWithBuffer(this);
         try {
@@ -140,7 +169,6 @@ public class KitkatCamera extends AbstractCamera implements Camera.PreviewCallba
             }
         }
         mFacing = FACING.FACING_FRONT;
-        mCameraId = 0;
         mCameraInfo = null;
     }
 
@@ -149,13 +177,9 @@ public class KitkatCamera extends AbstractCamera implements Camera.PreviewCallba
         if (mPreviewFrameCallback != null) {
             mPreviewFrameCallback.onPreviewFrame(data, mCameraWidth, mCameraHeight);
         }
-//        if (mCamera != null) {
-//            mCamera.addCallbackBuffer(data);
-//        }
-    }
-
-    public Point getPreviewSize() {
-        return new Point(mCameraWidth, mCameraHeight);
+        if (mCamera != null) {
+            mCamera.addCallbackBuffer(data);
+        }
     }
 
     public int getPreviewWidth() {
@@ -166,11 +190,14 @@ public class KitkatCamera extends AbstractCamera implements Camera.PreviewCallba
         return mCameraHeight;
     }
 
-    private int translate(FACING facing) {
+    public int getDisplayOrientation() {
+        return mDisplayOrientation;
+    }
+
+    private static int translateFacing(FACING facing) {
         if (facing == FACING.FACING_BACK) {
             return Camera.CameraInfo.CAMERA_FACING_BACK;
         }
         return Camera.CameraInfo.CAMERA_FACING_FRONT;
     }
-
 }

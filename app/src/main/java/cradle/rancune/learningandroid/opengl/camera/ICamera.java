@@ -11,9 +11,9 @@ public interface ICamera {
         FACING_BACK
     }
 
-    void setFacing(FACING facing);
+    void setTargetFacing(FACING facing);
 
-    void setConfig(Config config);
+    void setTargetConfig(Config targetConfig);
 
     void setPreviewTexture(SurfaceTexture texture);
 

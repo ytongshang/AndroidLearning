@@ -38,11 +38,11 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         mCamera = new KitkatCamera(getContext());
-        mCamera.setFacing(ICamera.FACING.FACING_FRONT);
+        mCamera.setTargetFacing(ICamera.FACING.FACING_FRONT);
         ICamera.Config cnf = new ICamera.Config();
         cnf.mWidth = 720;
         cnf.mHeight = 1080;
-        mCamera.setConfig(cnf);
+        mCamera.setTargetConfig(cnf);
 
         mFilter = new CameraFilter(mContext);
     }
@@ -50,7 +50,7 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         mFilter.performCreate();
-        mSurfaceTexture = new SurfaceTexture(mFilter.mOesTexture);
+        mSurfaceTexture = new SurfaceTexture(mFilter.getTextureId());
         mCamera.setPreviewTexture(mSurfaceTexture);
         mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
@@ -84,6 +84,4 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
         }
         super.onDetachedFromWindow();
     }
-
-
 }

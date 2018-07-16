@@ -16,7 +16,7 @@ import cradle.rancune.learningandroid.opengl.util.GLHelper;
 public abstract class Filter {
     private static final String TAG = "Filter";
 
-    protected final float[] mVertices = {
+    protected static final float[] sVertices = {
             -1.0f, 1.0f,
             -1.0f, -1.0f,
             1.0f, 1.0f,
@@ -24,7 +24,7 @@ public abstract class Filter {
     };
     protected FloatBuffer mVertexBuffer;
 
-    protected final float[] mCoords = {
+    protected static final float[] sCoords = {
             0.0f, 0.0f,
             0.0f, 1.0f,
             1.0f, 0.0f,
@@ -33,8 +33,6 @@ public abstract class Filter {
     protected FloatBuffer mCoordBuffer;
 
     protected int mProgram;
-    protected int mVertexShader;
-    protected int mFragmentShaer;
 
     protected float[] mMatrix = new float[16];
     protected float[] mCoordMatrix = new float[16];
@@ -43,8 +41,8 @@ public abstract class Filter {
 
     public Filter(Context context) {
         mContext = context;
-        mVertexBuffer = GLHelper.createFloatBuffer(mVertices);
-        mCoordBuffer = GLHelper.createFloatBuffer(mCoords);
+        mVertexBuffer = GLHelper.createFloatBuffer(sVertices);
+        mCoordBuffer = GLHelper.createFloatBuffer(sCoords);
         Matrix.setIdentityM(mMatrix, 0);
         Matrix.setIdentityM(mCoordMatrix, 0);
     }
@@ -66,9 +64,9 @@ public abstract class Filter {
     public abstract void onDraw();
 
     protected void createProgram(String vertexCode, String fragmentCode) {
-        mVertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexCode);
-        mFragmentShaer = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentCode);
-        mProgram = linkProgram(mVertexShader, mFragmentShaer);
+        int vertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexCode);
+        int fragmentShader = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentCode);
+        mProgram = linkProgram(vertexShader, fragmentShader);
     }
 
     protected void createFromAssets(String vertexPath, String fragmentPath) {

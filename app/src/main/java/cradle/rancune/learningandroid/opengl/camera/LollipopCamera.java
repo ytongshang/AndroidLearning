@@ -3,6 +3,7 @@ package cradle.rancune.learningandroid.opengl.camera;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -14,6 +15,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.view.Surface;
 
@@ -27,8 +29,16 @@ import cradle.rancune.commons.logging.Logger;
  * Created by Rancune@126.com 2018/7/11.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class LollipopCamera extends AbstractCamera {
+public class LollipopCamera implements ICamera {
     private static final String TAG = "LollipopCamera";
+
+    protected Context mContext;
+    private FACING mTargetFacing;
+    private Config mTargetConfig;
+    private PreviewFrameCallback mPreviewFrameCallback;
+    private SurfaceTexture mSurfaceTexture;
+
+    private FACING mFacing;
 
     private CameraManager mManager;
     private CameraCharacteristics mCharacteristics;
@@ -41,9 +51,34 @@ public class LollipopCamera extends AbstractCamera {
     private Handler mHandler;
 
     public LollipopCamera(Context context, Handler handler) {
-        super(context);
+        mContext = context;
+        if (handler == null) {
+            Looper looper = Looper.myLooper();
+            looper = looper == null ? Looper.getMainLooper() : looper;
+            handler = new Handler(looper);
+        }
         mHandler = handler;
         mManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+    }
+
+    @Override
+    public void setTargetFacing(FACING facing) {
+        mTargetFacing = facing;
+    }
+
+    @Override
+    public void setTargetConfig(Config targetConfig) {
+        mTargetConfig = targetConfig;
+    }
+
+    @Override
+    public void setPreviewTexture(SurfaceTexture texture) {
+        mSurfaceTexture = texture;
+    }
+
+    @Override
+    public void setPreviewFrameCallback(PreviewFrameCallback callback) {
+        mPreviewFrameCallback = callback;
     }
 
     @SuppressLint("MissingPermission")

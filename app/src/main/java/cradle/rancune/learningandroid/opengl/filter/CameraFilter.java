@@ -11,21 +11,19 @@ import cradle.rancune.learningandroid.opengl.util.GLHelper;
  */
 public class CameraFilter extends Filter {
 
-    public int mVertexPosition;
-    public int mCoordPosition;
-    public int mMatrixPosition;
-    public int mCoordMatrixPosition;
-    public int mTexturePosition;
+    private int mVertexPosition;
+    private int mCoordPosition;
+    private int mMatrixPosition;
+    private int mCoordMatrixPosition;
+    private int mTexturePosition;
 
-    public int mOesTexture;
+    private int mOesTexture;
 
     private int mPreviewWidth;
     private int mPreviewHeight;
 
     private int mViewWidth;
     private int mViewHeight;
-
-    private int cameraId = 1;
 
     public CameraFilter(Context context) {
         super(context);
@@ -45,7 +43,6 @@ public class CameraFilter extends Filter {
         mCoordMatrixPosition = getUniformLocation("vCoordMatrix");
         mTexturePosition = getUniformLocation("vTexture");
 
-        // 创建texture
         int[] texture = new int[1];
         GLES20.glGenTextures(1, texture, 0);
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture[0]);
@@ -82,6 +79,10 @@ public class CameraFilter extends Filter {
 
         GLES20.glDisableVertexAttribArray(mVertexPosition);
         GLES20.glDisableVertexAttribArray(mCoordPosition);
+    }
+
+    public int getTextureId() {
+        return mOesTexture;
     }
 
 

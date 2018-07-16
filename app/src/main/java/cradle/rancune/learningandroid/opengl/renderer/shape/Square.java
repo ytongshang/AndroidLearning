@@ -81,19 +81,19 @@ public class Square extends SimpleRenderer {
         );
 
         // 画线 01 23
-        // GLES20.glDrawArrays(GLES20.GL_LINES, 0, mVertices.length / 3);
+        // GLES20.glDrawArrays(GLES20.GL_LINES, 0, sVertices.length / 3);
 
         // 画线 01 12 23
-        // GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, mVertices.length / 3);
+        // GLES20.glDrawArrays(GLES20.GL_LINE_STRIP, 0, sVertices.length / 3);
 
         // 画线 01 12 23 31
-        // GLES20.glDrawArrays(GLES20.GL_LINE_LOOP, 0, mVertices.length / 3);
+        // GLES20.glDrawArrays(GLES20.GL_LINE_LOOP, 0, sVertices.length / 3);
 
         // 画三角形 012
-        //GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, mVertices.length / 3);
+        //GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, sVertices.length / 3);
 
         // 画三角形 根据奇偶规则 012 132
-        //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, mVertices.length / 3);
+        //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, sVertices.length / 3);
 
         // 画三角形 012 023
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, mVertices.length / 3);
