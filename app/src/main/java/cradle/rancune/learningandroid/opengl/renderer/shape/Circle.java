@@ -2,6 +2,7 @@ package cradle.rancune.learningandroid.opengl.renderer.shape;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import cradle.rancune.learningandroid.opengl.util.GLHelper;
  * Created by Rancune@126.com 2018/7/6.
  */
 public class Circle extends SimpleRenderer {
-    private static final int SLASH = 60;
+    private static final int SLASH = 256;
 
     private FloatBuffer mVertexBuffer;
 
@@ -31,13 +32,23 @@ public class Circle extends SimpleRenderer {
 
     private GLProgram mGLProgram;
 
+    private int mColorPosition;
+    private int mVetexPosition;
+    private int mMatrixPosition;
+
+    private float[] mMatrix = new float[16];
+
     public Circle(Context context) {
         super(context);
         mVertices = createPositions(0.5f, SLASH);
         mVertexBuffer = GLHelper.createFloatBuffer(mVertices);
         mColorBuffer = GLHelper.createFloatBuffer(mColor);
-        mGLProgram = GLProgram.of(GLHelper.readFromAssets(context, "shader/basic.vert"),
-                GLHelper.readFromAssets(context, "shader/basic.frag"));
+        mGLProgram = GLProgram.of(GLHelper.readFromAssets(context, "shader/shape.vert"),
+                GLHelper.readFromAssets(context, "shader/shape.frag"));
+        mVetexPosition = mGLProgram.getAttributeLocation("vPosition");
+        mColorPosition = mGLProgram.getUniformLocation("vColor");
+        mMatrixPosition = mGLProgram.getUniformLocation("uMatrix");
+        Matrix.setIdentityM(mMatrix, 0);
     }
 
     @Override
@@ -50,35 +61,39 @@ public class Circle extends SimpleRenderer {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         super.onSurfaceChanged(gl, width, height);
         GLES20.glViewport(0, 0, width, height);
+        float ratio = width > height ? width / (float)height : (float)height / width;
+        if (width > height) {
+            Matrix.orthoM(mMatrix, 0, -ratio, ratio, -1, 1, -1, 1);
+        } else {
+            Matrix.orthoM(mMatrix, 0, -1, 1, -ratio, ratio, -1, 1);
+        }
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         super.onDrawFrame(gl);
-        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
         draw();
     }
 
     @Override
     public void draw() {
-        super.draw();
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
         GLES20.glUseProgram(mGLProgram.getProgram());
 
-        int colorIndex = mGLProgram.getUniformLocation("vColor");
-        GLES20.glUniform4fv(colorIndex, 1, mColorBuffer);
-
-        int positionIndex = mGLProgram.getAttributeLocation("vPosition");
-        GLES20.glEnableVertexAttribArray(positionIndex);
+        GLES20.glUniform4fv(mColorPosition, 1, mColorBuffer);
+        GLES20.glUniformMatrix4fv(mMatrixPosition, 1, false, mMatrix, 0);
+        GLES20.glEnableVertexAttribArray(mVetexPosition);
         GLES20.glVertexAttribPointer(
-                positionIndex,
+                mVetexPosition,
                 3,
                 GLES20.GL_FLOAT,
                 false,
                 3 * 4,
                 mVertexBuffer
         );
-
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, mVertices.length / 3);
+
+        GLES20.glDisableVertexAttribArray(mVetexPosition);
     }
 
     private float[] createPositions(float radius, int n) {
