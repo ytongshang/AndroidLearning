@@ -22,19 +22,21 @@ import cradle.rancune.learningandroid.opengl.util.GLHelper;
  */
 public class Sample2D extends SimpleRenderer {
 
+    // 顶点
     private final float[] mVertices = {
-            -1.0f, 1.0f,
-            -1.0f, -1.0f,
-            1.0f, 1.0f,
-            1.0f, -1.0f,
+            -1.0f, 1.0f, // 左上
+            -1.0f, -1.0f, // 左下
+            1.0f, 1.0f, // 右上
+            1.0f, -1.0f, // 右下
     };
     private FloatBuffer mVertexBuffer;
 
+    // 纹理坐标
     private final float[] mCoords = {
-            0.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f
+            0.0f, 0.0f, // 左上
+            0.0f, 1.0f, // 左下
+            1.0f, 0.0f, // 右上
+            1.0f, 1.0f // 右下
     };
     private FloatBuffer mCoordBuffer;
 
@@ -60,7 +62,7 @@ public class Sample2D extends SimpleRenderer {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         mBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.lenna, options);
-        mTexture = GLHelper.loadTexture();
+        mTexture = GLHelper.load2DTexture();
         mGLProgram = GLProgram.of(GLHelper.readFromAssets(context, "shader/texture.vert"),
                 GLHelper.readFromAssets(context, "shader/texture.frag"));
         mVertexPosition = mGLProgram.getAttributeLocation("aPosition");
