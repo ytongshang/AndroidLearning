@@ -13,8 +13,16 @@ import cradle.rancune.learningandroid.opengl.util.GLHelper;
  * Created by Rancune@126.com 2018/7/16.
  */
 @SuppressWarnings({"FieldCanBeLocal", "WeakerAccess"})
-public abstract class Filter {
+public abstract class  Filter {
     private static final String TAG = "Filter";
+
+    // 纹理坐标
+    private final float[] mCoords = {
+            0.0f, 0.0f, // 左上
+            0.0f, 1.0f, // 左下
+            1.0f, 0.0f, // 右上
+            1.0f, 1.0f // 右下
+    };
 
     protected static final float[] sVertices = {
             -1.0f, 1.0f,
@@ -22,6 +30,7 @@ public abstract class Filter {
             1.0f, 1.0f,
             1.0f, -1.0f,
     };
+
     protected FloatBuffer mVertexBuffer;
 
     protected static final float[] sCoords = {
@@ -30,12 +39,13 @@ public abstract class Filter {
             1.0f, 0.0f,
             1.0f, 1.0f
     };
+
     protected FloatBuffer mCoordBuffer;
 
     protected int mProgram;
 
     protected float[] mMatrix = new float[16];
-    protected float[] mCoordMatrix = new float[16];
+    protected float[] mTextureMatrix = new float[16];
 
     protected Context mContext;
 
@@ -44,7 +54,7 @@ public abstract class Filter {
         mVertexBuffer = GLHelper.createFloatBuffer(sVertices);
         mCoordBuffer = GLHelper.createFloatBuffer(sCoords);
         Matrix.setIdentityM(mMatrix, 0);
-        Matrix.setIdentityM(mCoordMatrix, 0);
+        Matrix.setIdentityM(mTextureMatrix, 0);
     }
 
     public final void performCreate() {
@@ -62,6 +72,10 @@ public abstract class Filter {
     }
 
     public abstract void onDraw();
+
+    public void setTextureMatrix(float[] matrix) {
+        mTextureMatrix = matrix;
+    }
 
     protected void createProgram(String vertexCode, String fragmentCode) {
         int vertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexCode);

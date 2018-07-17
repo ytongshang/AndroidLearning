@@ -63,7 +63,7 @@ public class CameraFilter extends Filter {
     @Override
     public void onDraw() {
         GLES20.glUniformMatrix4fv(mMatrixPosition, 1, false, mMatrix, 0);
-        GLES20.glUniformMatrix4fv(mCoordMatrixPosition, 1, false, mCoordMatrix, 0);
+        GLES20.glUniformMatrix4fv(mCoordMatrixPosition, 1, false, mTextureMatrix, 0);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, mOesTexture);
@@ -84,6 +84,4 @@ public class CameraFilter extends Filter {
     public int getTextureId() {
         return mOesTexture;
     }
-
-
 }

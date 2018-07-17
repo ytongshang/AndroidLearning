@@ -21,6 +21,7 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
     private CameraFilter mFilter;
 
     private Context mContext;
+    private float[] mTextureTransformMatrix = new float[16];
 
     public CameraView(Context context) {
         this(context, null);
@@ -72,6 +73,8 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
     public void onDrawFrame(GL10 gl) {
         if (mSurfaceTexture != null) {
             mSurfaceTexture.updateTexImage();
+            mSurfaceTexture.getTransformMatrix(mTextureTransformMatrix);
+            mFilter.setTextureMatrix(mTextureTransformMatrix);
         }
         mFilter.performDraw();
     }
