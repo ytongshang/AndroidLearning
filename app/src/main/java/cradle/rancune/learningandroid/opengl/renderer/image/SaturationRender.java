@@ -8,7 +8,7 @@ import android.opengl.GLSurfaceView;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import cradle.rancune.learningandroid.opengl.filter.SaturationFilter;
+import cradle.rancune.learningandroid.opengl.filter.image.SaturationFilter;
 
 /**
  * Created by Rancune@126.com 2018/7/18.

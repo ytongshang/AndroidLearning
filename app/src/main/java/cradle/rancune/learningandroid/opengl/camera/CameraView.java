@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import cradle.rancune.learningandroid.opengl.filter.camera.CameraFilter;
+
 /**
  * Created by Rancune@126.com 2018/7/11.
  */

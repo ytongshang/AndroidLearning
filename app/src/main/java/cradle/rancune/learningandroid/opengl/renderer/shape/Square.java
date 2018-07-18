@@ -2,6 +2,7 @@ package cradle.rancune.learningandroid.opengl.renderer.shape;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import java.nio.FloatBuffer;
 
@@ -19,27 +20,34 @@ public class Square extends SimpleRenderer {
 
     // [a, b, c, d]
     private final float[] mVertices = {
-            -0.5f, 0.5f, 0,
-            0.5f, 0.5f, 0,
-            0.5f, -0.5f, 0,
-            -0.5f, -0.5f, 0,
+            -0.5f, 0.5f,
+            0.5f, 0.5f,
+            0.5f, -0.5f,
+            -0.5f, -0.5f,
     };
     private FloatBuffer mVertexBuffer;
 
     private final float[] mColor = {
             1.0f, 1.0f, 1.0f, 1.0f
     };
-    private FloatBuffer mColorBuffer;
-
 
     private GLProgram mGLProgram;
+
+    private int mColorPosition;
+    private int mVetexPosition;
+    private int mMatrixPosition;
+
+    private float[] mMatrix = new float[16];
 
     public Square(Context context) {
         super(context);
         mVertexBuffer = GLHelper.createFloatBuffer(mVertices);
-        mColorBuffer = GLHelper.createFloatBuffer(mColor);
         mGLProgram = GLProgram.of(GLHelper.readFromAssets(context, "shader/basic.vert"),
                 GLHelper.readFromAssets(context, "shader/basic.frag"));
+        mVetexPosition = mGLProgram.getAttributeLocation("aPosition");
+        mColorPosition = mGLProgram.getUniformLocation("uColor");
+        mMatrixPosition = mGLProgram.getUniformLocation("uMatrix");
+        Matrix.setIdentityM(mMatrix, 0);
     }
 
     @Override
@@ -57,26 +65,26 @@ public class Square extends SimpleRenderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         super.onDrawFrame(gl);
-        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+
         draw();
     }
 
     @Override
     public void draw() {
         super.draw();
+        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
         GLES20.glUseProgram(mGLProgram.getProgram());
 
-        int colorIndex = mGLProgram.getUniformLocation("vColor");
-        GLES20.glUniform4fv(colorIndex, 1, mColorBuffer);
+        GLES20.glUniform4fv(mColorPosition, 1, mColor, 0);
+        GLES20.glUniformMatrix4fv(mMatrixPosition, 1, false, mMatrix, 0);
 
-        int positionIndex = mGLProgram.getAttributeLocation("vPosition");
-        GLES20.glEnableVertexAttribArray(positionIndex);
+        GLES20.glEnableVertexAttribArray(mVetexPosition);
         GLES20.glVertexAttribPointer(
-                positionIndex,
-                3,
+                mVetexPosition,
+                2,
                 GLES20.GL_FLOAT,
                 false,
-                3 * 4,
+                2 * 4,
                 mVertexBuffer
         );
 
@@ -96,6 +104,8 @@ public class Square extends SimpleRenderer {
         //GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, sVertices.length / 3);
 
         // 画三角形 012 023
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, mVertices.length / 3);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, 0, mVertices.length / 2);
+
+        GLES20.glDisableVertexAttribArray(mVetexPosition);
     }
 }

@@ -1,10 +1,11 @@
-package cradle.rancune.learningandroid.opengl.filter;
+package cradle.rancune.learningandroid.opengl.filter.image;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
+import cradle.rancune.learningandroid.opengl.filter.Filter;
 import cradle.rancune.learningandroid.opengl.util.GLHelper;
 import cradle.rancune.learningandroid.opengl.util.MatrixUtils;
 
@@ -33,13 +34,13 @@ public class SaturationFilter extends Filter {
 
     @Override
     public void onCreate() {
-        createFromAssets("filter/saturation.vert", "filter/saturation.frag");
-        mVertexPosition = getAttributeLocation("a_Position");
-        mTextureCoordPosition = getAttributeLocation("a_TextureCoordinate");
-        mMatrixPosition = getUniformLocation("u_Matrix");
-        mCoordMatrixPosition = getUniformLocation("u_CoordMatrix");
-        mTexturePosition = getUniformLocation("u_Texture");
-        mSaturationPosition = getUniformLocation("u_Saturation");
+        createFromAssets("shader/baseTexture2D.vert", "shader/saturation.frag");
+        mVertexPosition = getAttributeLocation("aPosition");
+        mTextureCoordPosition = getAttributeLocation("aTextureCoordinate");
+        mMatrixPosition = getUniformLocation("uMatrix");
+        mCoordMatrixPosition = getUniformLocation("uTextureCoordMatrix");
+        mTexturePosition = getUniformLocation("uTexture");
+        mSaturationPosition = getUniformLocation("uSaturation");
 
         mTexture = GLHelper.load2DTexture();
     }

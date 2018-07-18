@@ -1,4 +1,4 @@
-package cradle.rancune.learningandroid.opengl.camera;
+package cradle.rancune.learningandroid.opengl.filter.camera;
 
 import android.content.Context;
 import android.opengl.GLES11Ext;
@@ -37,12 +37,12 @@ public class CameraFilter extends Filter {
 
     @Override
     public void onCreate() {
-        createFromAssets("filter/oes_base_vertex.vert", "filter/oes_base_fragment.frag");
-        mVertexPosition = getAttributeLocation("a_Position");
-        mCoordPosition = getAttributeLocation("a_TextureCoordinate");
-        mMatrixPosition = getUniformLocation("u_Matrix");
-        mCoordMatrixPosition = getUniformLocation("u_CoordMatrix");
-        mTexturePosition = getUniformLocation("u_Texture");
+        createFromAssets("shader/baseTexture2D.vert", "shader/baseOES.frag");
+        mVertexPosition = getAttributeLocation("aPosition");
+        mCoordPosition = getAttributeLocation("aTextureCoordinate");
+        mMatrixPosition = getUniformLocation("uMatrix");
+        mCoordMatrixPosition = getUniformLocation("uTextureCoordMatrix");
+        mTexturePosition = getUniformLocation("uOESTexture");
 
         int[] texture = new int[1];
         GLES20.glGenTextures(1, texture, 0);

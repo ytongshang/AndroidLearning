@@ -22,7 +22,6 @@ public abstract class Filter {
             1.0f, 1.0f, // 右上
             1.0f, -1.0f, // 右下
     };
-
     protected FloatBuffer mVertexBuffer;
 
     protected static final float[] sCoords = {
@@ -31,14 +30,12 @@ public abstract class Filter {
             1.0f, 0.0f, // 右上
             1.0f, 1.0f // 右下
     };
-
     protected static final float[] sCameraCoords = {
             0.0f, 1.0f, // 左上
             0.0f, 0.0f, // 左下
             1.0f, 1.0f, // 右上
             1.0f, 0.0f // 右下
     };
-
     protected FloatBuffer mCoordBuffer;
 
     protected int mProgram;

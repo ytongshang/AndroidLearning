@@ -2,6 +2,7 @@ package cradle.rancune.learningandroid.opengl.renderer.shape;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -19,11 +20,11 @@ import cradle.rancune.learningandroid.opengl.util.GLHelper;
 public class DrawElements extends SimpleRenderer {
 
     private final float[] mVertices = {
-            -1.0f, 1.0f, 0.0f,
-            -0.5f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.5f, 0.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
+            -1.0f, 1.0f,
+            -0.5f, 0.0f,
+            0.0f, 1.0f,
+            0.5f, 0.0f,
+            1.0f, 1.0f,
     };
     private FloatBuffer mVertexBuffer;
 
@@ -38,13 +39,22 @@ public class DrawElements extends SimpleRenderer {
 
     private GLProgram mGLProgram;
 
+    private int mColorPosition;
+    private int mVetexPosition;
+    private int mMatrixPosition;
+
+    private float[] mMatrix = new float[16];
+
     public DrawElements(Context context) {
         super(context);
-        mVertexBuffer = GLHelper.createFloatBuffer(mVertices);
         mIndiceBuffer = (ByteBuffer) ByteBuffer.allocateDirect(mIndices.length).put(mIndices).position(0);
+        mVertexBuffer = GLHelper.createFloatBuffer(mVertices);
         mGLProgram = GLProgram.of(GLHelper.readFromAssets(context, "shader/basic.vert"),
                 GLHelper.readFromAssets(context, "shader/basic.frag"));
-
+        mVetexPosition = mGLProgram.getAttributeLocation("aPosition");
+        mColorPosition = mGLProgram.getUniformLocation("uColor");
+        mMatrixPosition = mGLProgram.getUniformLocation("uMatrix");
+        Matrix.setIdentityM(mMatrix, 0);
     }
 
     @Override
@@ -71,19 +81,18 @@ public class DrawElements extends SimpleRenderer {
         super.draw();
         GLES20.glUseProgram(mGLProgram.getProgram());
 
-        int pointIndex = mGLProgram.getAttributeLocation("vPosition");
-        GLES20.glEnableVertexAttribArray(pointIndex);
+        GLES20.glUniform4fv(mColorPosition, 1, mColor, 0);
+        GLES20.glUniformMatrix4fv(mMatrixPosition, 1, false, mMatrix, 0);
+
+        GLES20.glEnableVertexAttribArray(mVetexPosition);
         GLES20.glVertexAttribPointer(
-                pointIndex,
-                3,
+                mVetexPosition,
+                2,
                 GLES20.GL_FLOAT,
                 false,
-                3 * 4,
+                2*4,
                 mVertexBuffer
         );
-
-        int colorIndex = mGLProgram.getUniformLocation("vColor");
-        GLES20.glUniform4fv(colorIndex, 1, mColor, 0);
 
         GLES20.glDrawElements(
                 GLES20.GL_TRIANGLE_STRIP,
@@ -91,5 +100,7 @@ public class DrawElements extends SimpleRenderer {
                 GLES20.GL_UNSIGNED_BYTE,
                 mIndiceBuffer
         );
+
+        GLES20.glDisableVertexAttribArray(mVetexPosition);
     }
 }
