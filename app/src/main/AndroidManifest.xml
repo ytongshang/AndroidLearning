@@ -39,6 +39,7 @@
             android:name=".opengl.ui.OpenGLBasisActivity"
             android:theme="@style/AppTheme" />
         <activity android:name=".opengl.ui.OpenGLCameraActivity" />
+        <activity android:name=".opengl.ui.OpenGLSaturationActivity" />
 
 
     </application>

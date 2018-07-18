@@ -17,6 +17,7 @@ import cradle.rancune.learningandroid.BaseActivity;
 import cradle.rancune.learningandroid.R;
 import cradle.rancune.learningandroid.opengl.ui.OpenGLBasisActivity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGLCameraActivity;
+import cradle.rancune.learningandroid.opengl.ui.OpenGLSaturationActivity;
 
 public class OpenGLMainActivity extends BaseActivity {
 
@@ -46,6 +47,11 @@ public class OpenGLMainActivity extends BaseActivity {
         page.title = R.string.activity_opengl8;
         page.intent = new Intent(mContext, OpenGLCameraActivity.class);
         mPages.add(page);
+
+        Page saturation = new Page();
+        saturation.title = R.string.activity_opengl9;
+        saturation.intent = new Intent(mContext, OpenGLSaturationActivity.class);
+        mPages.add(saturation);
 
         mAdapter.notifyDataSetChanged();
     }

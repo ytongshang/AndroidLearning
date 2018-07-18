@@ -19,6 +19,7 @@
     <string name="activity_opengl7">OpenGL初识纹理</string>
 
     <string name="activity_opengl8">OpenGL相机</string>
+    <string name="activity_opengl9">OpenGL图片饱和度</string>
 
 
     <string name="btn_get_display_rotation">Display Rotation</string>

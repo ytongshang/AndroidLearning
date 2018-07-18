@@ -65,7 +65,7 @@ public abstract class Filter {
     public abstract void onSizeChanged(int width, int height);
 
     public final void performDraw() {
-        clearBuffer();
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glUseProgram(mProgram);
         onDraw();
     }
@@ -85,10 +85,6 @@ public abstract class Filter {
     protected void createFromAssets(String vertexPath, String fragmentPath) {
         createProgram(GLHelper.readFromAssets(mContext, vertexPath),
                 GLHelper.readFromAssets(mContext, fragmentPath));
-    }
-
-    protected void clearBuffer() {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
     }
 
     protected int getAttributeLocation(String name) {
