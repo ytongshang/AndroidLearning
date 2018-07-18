@@ -3,6 +3,7 @@ package cradle.rancune.learningandroid.opengl.filter;
 import android.content.Context;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import cradle.rancune.learningandroid.opengl.util.MatrixUtils;
 
@@ -58,6 +59,7 @@ public class CameraFilter extends Filter {
         mViewWidth = width;
         mViewHeight = height;
         MatrixUtils.getMatrix(mMatrix, MatrixUtils.ScaleTye.CENTER_CROP, mPreviewWidth, mPreviewHeight, mViewWidth, mPreviewHeight);
+        Matrix.scaleM(mMatrix,0, 1, -1, 0);
     }
 
     @Override
