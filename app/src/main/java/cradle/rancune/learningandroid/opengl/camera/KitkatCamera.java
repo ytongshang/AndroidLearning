@@ -63,7 +63,7 @@ public class KitkatCamera implements ICamera, Camera.PreviewCallback {
 
     @Override
     public void startPreview() {
-        if (mFacing != mTargetFacing) {
+        if (mCamera != null) {
             release();
         }
         if (mSurfaceTexture == null) {

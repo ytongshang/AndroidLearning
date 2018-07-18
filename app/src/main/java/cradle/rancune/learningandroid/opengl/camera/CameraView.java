@@ -9,8 +9,6 @@ import android.util.AttributeSet;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import cradle.rancune.learningandroid.opengl.filter.CameraFilter;
-
 /**
  * Created by Rancune@126.com 2018/7/11.
  */
@@ -65,17 +63,7 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
-        int displayOrientation = mCamera.getDisplayOrientation();
-        int cameraWidth;
-        int cameraHeight;
-        if (displayOrientation == 0 || displayOrientation == 180) {
-            cameraWidth = mCamera.getPreviewWidth();
-            cameraHeight = mCamera.getPreviewHeight();
-        } else {
-            cameraWidth = mCamera.getPreviewHeight();
-            cameraHeight = mCamera.getPreviewWidth();
-        }
-        mFilter.setPreviewSize(cameraWidth, cameraHeight);
+        mFilter.setPreviewSize(mCamera.getPreviewWidth(), mCamera.getPreviewHeight());
         mFilter.onSizeChanged(width, height);
     }
 
@@ -104,11 +92,13 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
     }
 
     public void switchCamera() {
+        ICamera.FACING target;
         if (mCamera.getFacing() == ICamera.FACING.FACING_FRONT) {
-            mCamera.setTargetFacing(ICamera.FACING.FACING_BACK);
+            target = ICamera.FACING.FACING_BACK;
         } else {
-            mCamera.setTargetFacing(ICamera.FACING.FACING_FRONT);
+            target = ICamera.FACING.FACING_FRONT;
         }
+        mCamera.setTargetFacing(target);
         mCamera.startPreview();
     }
 }

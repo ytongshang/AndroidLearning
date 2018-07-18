@@ -1,10 +1,10 @@
-package cradle.rancune.learningandroid.opengl.filter;
+package cradle.rancune.learningandroid.opengl.camera;
 
 import android.content.Context;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
+import cradle.rancune.learningandroid.opengl.filter.Filter;
 import cradle.rancune.learningandroid.opengl.util.MatrixUtils;
 
 /**
@@ -38,11 +38,11 @@ public class CameraFilter extends Filter {
     @Override
     public void onCreate() {
         createFromAssets("filter/oes_base_vertex.vert", "filter/oes_base_fragment.frag");
-        mVertexPosition = getAttributeLocation("vPosition");
-        mCoordPosition = getAttributeLocation("vCoord");
-        mMatrixPosition = getUniformLocation("vMatrix");
-        mCoordMatrixPosition = getUniformLocation("vCoordMatrix");
-        mTexturePosition = getUniformLocation("vTexture");
+        mVertexPosition = getAttributeLocation("a_Position");
+        mCoordPosition = getAttributeLocation("a_TextureCoordinate");
+        mMatrixPosition = getUniformLocation("u_Matrix");
+        mCoordMatrixPosition = getUniformLocation("u_CoordMatrix");
+        mTexturePosition = getUniformLocation("u_Texture");
 
         int[] texture = new int[1];
         GLES20.glGenTextures(1, texture, 0);
@@ -52,6 +52,10 @@ public class CameraFilter extends Filter {
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
         mOesTexture = texture[0];
+
+        mCoordBuffer.clear();
+        mCoordBuffer.put(sCameraCoords);
+        mCoordBuffer.position(0);
     }
 
     @Override
@@ -59,7 +63,6 @@ public class CameraFilter extends Filter {
         mViewWidth = width;
         mViewHeight = height;
         MatrixUtils.getMatrix(mMatrix, MatrixUtils.ScaleTye.CENTER_CROP, mPreviewWidth, mPreviewHeight, mViewWidth, mPreviewHeight);
-        Matrix.scaleM(mMatrix,0, 1, -1, 0);
     }
 
     @Override

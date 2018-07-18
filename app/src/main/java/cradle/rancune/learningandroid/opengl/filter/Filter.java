@@ -13,31 +13,30 @@ import cradle.rancune.learningandroid.opengl.util.GLHelper;
  * Created by Rancune@126.com 2018/7/16.
  */
 @SuppressWarnings({"FieldCanBeLocal", "WeakerAccess"})
-public abstract class  Filter {
+public abstract class Filter {
     private static final String TAG = "Filter";
 
-    // 纹理坐标
-    private final float[] mCoords = {
+    protected static final float[] sVertices = {
+            -1.0f, 1.0f, // 左上
+            -1.0f, -1.0f, // 左下
+            1.0f, 1.0f, // 右上
+            1.0f, -1.0f, // 右下
+    };
+
+    protected FloatBuffer mVertexBuffer;
+
+    protected static final float[] sCoords = {
             0.0f, 0.0f, // 左上
             0.0f, 1.0f, // 左下
             1.0f, 0.0f, // 右上
             1.0f, 1.0f // 右下
     };
 
-    protected static final float[] sVertices = {
-            -1.0f, 1.0f,
-            -1.0f, -1.0f,
-            1.0f, 1.0f,
-            1.0f, -1.0f,
-    };
-
-    protected FloatBuffer mVertexBuffer;
-
-    protected static final float[] sCoords = {
-            0.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f
+    protected static final float[] sCameraCoords = {
+            0.0f, 1.0f, // 左上
+            0.0f, 0.0f, // 左下
+            1.0f, 1.0f, // 右上
+            1.0f, 0.0f // 右下
     };
 
     protected FloatBuffer mCoordBuffer;

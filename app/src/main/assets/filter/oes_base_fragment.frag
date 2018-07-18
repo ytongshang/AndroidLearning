@@ -1,7 +1,7 @@
 #extension GL_OES_EGL_image_external : require
 precision mediump float;
-varying vec2 textureCoordinate;
-uniform samplerExternalOES vTexture;
+varying vec2 v_TextureCoordinate;
+uniform samplerExternalOES u_Texture;
 void main() {
-    gl_FragColor = texture2D(vTexture, textureCoordinate);
+    gl_FragColor = texture2D(u_Texture, v_TextureCoordinate);
 }
