@@ -35,6 +35,8 @@ public class KitkatCamera implements ICamera, Camera.PreviewCallback {
     private Camera.CameraInfo mCameraInfo;
     private byte[][] mPreviewCallbackBuffer;
 
+    private boolean mIsPreviewing = false;
+
     public KitkatCamera(Context context) {
         mContext = context;
     }
@@ -61,8 +63,12 @@ public class KitkatCamera implements ICamera, Camera.PreviewCallback {
 
     @Override
     public void startPreview() {
-        if (mTargetFacing != mFacing && mCamera != null) {
+        if (mFacing != mTargetFacing) {
             release();
+        }
+        if (mSurfaceTexture == null) {
+            Logger.d(TAG, "startPreview, but the SurfaceTexture is not set");
+            return;
         }
 
         // 1. 找到目标摄像头
@@ -145,23 +151,29 @@ public class KitkatCamera implements ICamera, Camera.PreviewCallback {
         for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++) {
             mCamera.addCallbackBuffer(mPreviewCallbackBuffer[i]);
         }
-        mCamera.setPreviewCallback(this);
-        //mCamera.setPreviewCallbackWithBuffer(this);
+        mCamera.setPreviewCallbackWithBuffer(this);
         try {
             mCamera.setPreviewTexture(mSurfaceTexture);
         } catch (IOException e) {
             Logger.e(TAG, "get windowManager failed", e);
         }
         mCamera.startPreview();
+
+        mIsPreviewing = true;
+    }
+
+    @Override
+    public void stopPreview() {
+        release();
     }
 
     @Override
     public void release() {
         if (mCamera != null) {
             try {
-                mCamera.stopPreview();
                 mCamera.setPreviewTexture(null);
                 mCamera.setPreviewCallbackWithBuffer(null);
+                mCamera.stopPreview();
                 mCamera.release();
                 mCamera = null;
             } catch (Exception e) {
@@ -170,6 +182,15 @@ public class KitkatCamera implements ICamera, Camera.PreviewCallback {
         }
         mFacing = FACING.FACING_FRONT;
         mCameraInfo = null;
+        mDisplayOrientation = 0;
+        mCameraWidth = 0;
+        mCameraHeight = 0;
+        mIsPreviewing = false;
+    }
+
+    @Override
+    public FACING getFacing() {
+        return mFacing;
     }
 
     @Override

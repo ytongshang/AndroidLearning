@@ -3,6 +3,8 @@
 
     <string name="opengl2_not_supported">不支持OpenGLES 2.0!</string>
 
+    <string name="permission_camera_denied">请开启应用相机权限！</string>
+
     <!--main-->
     <string name="activity_aidl">学习AIDL</string>
     <string name="activity_opengl">OpenglES</string>
@@ -17,4 +19,9 @@
     <string name="activity_opengl7">OpenGL初识纹理</string>
 
     <string name="activity_opengl8">OpenGL相机</string>
+
+
+    <string name="btn_get_display_rotation">Display Rotation</string>
+    <string name="btn_switch_camera">切换摄像头</string>
+    <string name="toast_display_rotation">Display Rotation:%d</string>
 </resources>

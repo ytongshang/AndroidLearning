@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,34 +89,5 @@ public class GLHelper {
         //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
         return textureObjectids[0];
-    }
-
-    public static void getShowMatrix(float[] matrix, int imgWidth, int imgHeight,
-                                     int viewWidth, int viewHeight) {
-        if (imgHeight > 0 && imgWidth > 0 && viewWidth > 0 && viewHeight > 0) {
-            float sWhView = (float) viewWidth / viewHeight;
-            float sWhImg = (float) imgWidth / imgHeight;
-            float[] projection = new float[16];
-            float[] camera = new float[16];
-            if (sWhImg > sWhView) {
-                Matrix.orthoM(projection, 0, -sWhView / sWhImg, sWhView / sWhImg, -1, 1, 1, 3);
-            } else {
-                Matrix.orthoM(projection, 0, -1, 1, -sWhImg / sWhView, sWhImg / sWhView, 1, 3);
-            }
-            Matrix.setLookAtM(camera, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0);
-            Matrix.multiplyMM(matrix, 0, projection, 0, camera, 0);
-        }
-    }
-
-    public static float[] rotate(float[] m, float angle) {
-        Matrix.rotateM(m, 0, angle, 0, 0, 1);
-        return m;
-    }
-
-    public static float[] flip(float[] m, boolean x, boolean y) {
-        if (x || y) {
-            Matrix.scaleM(m, 0, x ? -1 : 1, y ? -1 : 1, 1);
-        }
-        return m;
     }
 }

@@ -21,7 +21,11 @@ public interface ICamera {
 
     void startPreview();
 
+    void stopPreview();
+
     void release();
+
+    FACING getFacing();
 
     class Config {
         int mWidth;

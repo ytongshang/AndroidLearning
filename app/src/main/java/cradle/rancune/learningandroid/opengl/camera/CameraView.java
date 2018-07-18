@@ -41,8 +41,8 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
         mCamera = new KitkatCamera(getContext());
         mCamera.setTargetFacing(ICamera.FACING.FACING_FRONT);
         ICamera.Config cnf = new ICamera.Config();
-        cnf.mWidth = 720;
-        cnf.mHeight = 1080;
+        cnf.mWidth = 1280;
+        cnf.mHeight = 720;
         mCamera.setTargetConfig(cnf);
 
         mFilter = new CameraFilter(mContext);
@@ -65,7 +65,17 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
-        mFilter.setPreviewSize(mCamera.getPreviewWidth(), mCamera.getPreviewHeight());
+        int displayOrientation = mCamera.getDisplayOrientation();
+        int cameraWidth;
+        int cameraHeight;
+        if (displayOrientation == 0 || displayOrientation == 180) {
+            cameraWidth = mCamera.getPreviewWidth();
+            cameraHeight = mCamera.getPreviewHeight();
+        } else {
+            cameraWidth = mCamera.getPreviewHeight();
+            cameraHeight = mCamera.getPreviewWidth();
+        }
+        mFilter.setPreviewSize(cameraWidth, cameraHeight);
         mFilter.onSizeChanged(width, height);
     }
 
@@ -79,12 +89,26 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
         mFilter.performDraw();
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
+    public void resume() {
+        onResume();
         if (mCamera != null) {
-            mCamera.release();
-            mCamera = null;
+            mCamera.startPreview();
         }
-        super.onDetachedFromWindow();
+    }
+
+    public void pasuse() {
+        if (mCamera != null) {
+            mCamera.stopPreview();
+        }
+        onPause();
+    }
+
+    public void switchCamera() {
+        if (mCamera.getFacing() == ICamera.FACING.FACING_FRONT) {
+            mCamera.setTargetFacing(ICamera.FACING.FACING_BACK);
+        } else {
+            mCamera.setTargetFacing(ICamera.FACING.FACING_FRONT);
+        }
+        mCamera.startPreview();
     }
 }

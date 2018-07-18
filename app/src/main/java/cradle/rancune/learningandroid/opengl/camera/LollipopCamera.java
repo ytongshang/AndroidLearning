@@ -129,8 +129,18 @@ public class LollipopCamera implements ICamera {
     }
 
     @Override
+    public void stopPreview() {
+
+    }
+
+    @Override
     public void release() {
 
+    }
+
+    @Override
+    public FACING getFacing() {
+        return null;
     }
 
     private int translate(FACING facing) {

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 
-import cradle.rancune.learningandroid.opengl.util.GLHelper;
+import cradle.rancune.learningandroid.opengl.util.MatrixUtils;
 
 /**
  * Created by Rancune@126.com 2018/7/16.
@@ -57,7 +57,7 @@ public class CameraFilter extends Filter {
     public void onSizeChanged(int width, int height) {
         mViewWidth = width;
         mViewHeight = height;
-        GLHelper.getShowMatrix(mMatrix, mPreviewWidth, mPreviewHeight, mViewWidth, mViewHeight);
+        MatrixUtils.getMatrix(mMatrix, MatrixUtils.ScaleTye.CENTER_CROP, mPreviewWidth, mPreviewHeight, mViewWidth, mPreviewHeight);
     }
 
     @Override
