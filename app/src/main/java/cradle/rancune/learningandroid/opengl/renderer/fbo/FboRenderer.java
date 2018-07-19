@@ -56,11 +56,6 @@ public class FboRenderer implements GLSurfaceView.Renderer {
         }
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBufferId);
-        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
-                GLES20.GL_TEXTURE_2D, mDstTextureId, 0);
-        GLES20.glFramebufferRenderbuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT,
-                GLES20.GL_RENDERBUFFER, mRenderBufferId);
         GLES20.glViewport(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
         mFilter.setTextureId(mSourceTextureId);
         mFilter.performDraw();
@@ -96,8 +91,12 @@ public class FboRenderer implements GLSurfaceView.Renderer {
     private void createEnv() {
         release();
 
-        // 必须要先glGenTextures，后面才能glGenFramebuffers和glGenRenderbuffers
-        // 只要换一下就崩了，我也不知道为什么
+        // create Framebbuffer
+        int[] fbo = new int[1];
+        GLES20.glGenFramebuffers(1, fbo, 0);
+        GLHelper.checkGlError("glGenFramebuffers");
+        mFrameBufferId = fbo[0];
+
         // create texture
         int[] textures = new int[2];
         GLES20.glGenTextures(2, textures, 0);
@@ -121,27 +120,21 @@ public class FboRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        // create Framebbuffer
-        int[] fbo = new int[1];
-        GLES20.glGenFramebuffers(1, fbo, 0);
-        GLHelper.checkGlError("glGenFramebuffers");
-        mFrameBufferId = fbo[0];
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBufferId);
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
+                GLES20.GL_TEXTURE_2D, mDstTextureId, 0);
 
         // create Renderbuffer
         int[] render = new int[1];
         GLES20.glGenRenderbuffers(1, render, 0);
         GLHelper.checkGlError("glGenRenderbuffers");
         mRenderBufferId = render[0];
-
-        // depth attachment
         GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, mRenderBufferId);
         GLES20.glRenderbufferStorage(GLES20.GL_RENDERBUFFER, GLES20.GL_DEPTH_COMPONENT16,
                 mBitmap.getWidth(), mBitmap.getHeight());
+        GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, 0);
         GLES20.glFramebufferRenderbuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT,
                 GLES20.GL_RENDERBUFFER, mRenderBufferId);
-        GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, 0);
-
-
     }
 
     public void setBitmap(Bitmap bitmap) {
