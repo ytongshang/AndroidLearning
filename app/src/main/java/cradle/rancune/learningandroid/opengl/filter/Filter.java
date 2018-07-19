@@ -85,6 +85,10 @@ public abstract class Filter {
         mTextureId = id;
     }
 
+    public float[] getMatrix() {
+        return mMatrix;
+    }
+
     protected void createProgram(String vertexCode, String fragmentCode) {
         int vertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexCode);
         int fragmentShader = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentCode);

@@ -26,7 +26,7 @@ public class OpenGLFboActivity extends BaseActivity {
 
     GLSurfaceView mSurfaceView;
     Bitmap mBitmap;
-    float mSaturation;
+    float mSaturation = 0.5f;
     FboRenderer mRender;
     AppCompatSeekBar mSeekbar;
 

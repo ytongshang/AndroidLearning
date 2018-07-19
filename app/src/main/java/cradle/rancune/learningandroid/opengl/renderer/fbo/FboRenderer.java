@@ -14,6 +14,7 @@ import javax.microedition.khronos.opengles.GL10;
 import cradle.rancune.learningandroid.opengl.filter.image.SaturationFilter;
 import cradle.rancune.learningandroid.opengl.interfaces.Callback;
 import cradle.rancune.learningandroid.opengl.util.GLHelper;
+import cradle.rancune.learningandroid.opengl.util.MatrixUtils;
 
 /**
  * Created by Rancune@126.com 2018/7/19.
@@ -45,12 +46,12 @@ public class FboRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-
+        MatrixUtils.flip(mFilter.getMatrix(), false, true, false);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mBitmap == null) {
+        if (mBitmap == null || mBitmap.isRecycled()) {
             return;
         }
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -62,7 +63,7 @@ public class FboRenderer implements GLSurfaceView.Renderer {
                 GLES20.GL_RENDERBUFFER, mRenderBufferId);
         GLES20.glViewport(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
         mFilter.setTextureId(mSourceTextureId);
-        mFilter.onDraw();
+        mFilter.performDraw();
         if (mBuffer == null) {
             mBuffer = ByteBuffer.allocate(mBitmap.getWidth() * mBitmap.getHeight() * 4);
         }
@@ -71,7 +72,7 @@ public class FboRenderer implements GLSurfaceView.Renderer {
         if (mCallback != null) {
             mCallback.onCallback(mBuffer);
         }
-        release();
+        mBitmap.recycle();
     }
 
     public void release() {
@@ -95,26 +96,8 @@ public class FboRenderer implements GLSurfaceView.Renderer {
     private void createEnv() {
         release();
 
-        // create Framebbuffer
-        int[] fbo = new int[1];
-        GLES20.glGenFramebuffers(1, fbo, 0);
-        GLHelper.checkGlError("glGenFramebuffers");
-        mFrameBufferId = fbo[0];
-
-        // create Renderbuffer
-        int[] render = new int[1];
-        GLES20.glGenRenderbuffers(1, render, 0);
-        GLHelper.checkGlError("glGenRenderbuffers");
-        mRenderBufferId = render[0];
-
-        // depth attachment
-        GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, mRenderBufferId);
-        GLES20.glRenderbufferStorage(GLES20.GL_RENDERBUFFER, GLES20.GL_DEPTH_COMPONENT16,
-                mBitmap.getWidth(), mBitmap.getHeight());
-        GLES20.glFramebufferRenderbuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT,
-                GLES20.GL_RENDERBUFFER, mRenderBufferId);
-        GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, 0);
-
+        // 必须要先glGenTextures，后面才能glGenFramebuffers和glGenRenderbuffers
+        // 只要换一下就崩了，我也不知道为什么
         // create texture
         int[] textures = new int[2];
         GLES20.glGenTextures(2, textures, 0);
@@ -137,6 +120,28 @@ public class FboRenderer implements GLSurfaceView.Renderer {
                         GLES20.GL_UNSIGNED_BYTE, null);
             }
         }
+
+        // create Framebbuffer
+        int[] fbo = new int[1];
+        GLES20.glGenFramebuffers(1, fbo, 0);
+        GLHelper.checkGlError("glGenFramebuffers");
+        mFrameBufferId = fbo[0];
+
+        // create Renderbuffer
+        int[] render = new int[1];
+        GLES20.glGenRenderbuffers(1, render, 0);
+        GLHelper.checkGlError("glGenRenderbuffers");
+        mRenderBufferId = render[0];
+
+        // depth attachment
+        GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, mRenderBufferId);
+        GLES20.glRenderbufferStorage(GLES20.GL_RENDERBUFFER, GLES20.GL_DEPTH_COMPONENT16,
+                mBitmap.getWidth(), mBitmap.getHeight());
+        GLES20.glFramebufferRenderbuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT,
+                GLES20.GL_RENDERBUFFER, mRenderBufferId);
+        GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, 0);
+
+
     }
 
     public void setBitmap(Bitmap bitmap) {
