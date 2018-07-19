@@ -10,6 +10,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import cradle.rancune.learningandroid.opengl.filter.camera.CameraFilter;
+import cradle.rancune.learningandroid.opengl.util.GLHelper;
 
 /**
  * Created by Rancune@126.com 2018/7/11.
@@ -18,6 +19,7 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
     private KitkatCamera mCamera;
     private SurfaceTexture mSurfaceTexture;
 
+    private int mTextureId;
     private CameraFilter mFilter;
 
     private Context mContext;
@@ -50,8 +52,10 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        mTextureId = GLHelper.loadOESTexture();
         mFilter.performCreate();
-        mSurfaceTexture = new SurfaceTexture(mFilter.getTextureId());
+        mFilter.setTextureId(mTextureId);
+        mSurfaceTexture = new SurfaceTexture(mTextureId);
         mCamera.setPreviewTexture(mSurfaceTexture);
         mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
@@ -76,6 +80,7 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
             mSurfaceTexture.getTransformMatrix(mTextureTransformMatrix);
             mFilter.setTextureMatrix(mTextureTransformMatrix);
         }
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         mFilter.performDraw();
     }
 

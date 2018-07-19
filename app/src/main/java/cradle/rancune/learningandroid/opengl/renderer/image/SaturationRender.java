@@ -9,6 +9,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import cradle.rancune.learningandroid.opengl.filter.image.SaturationFilter;
+import cradle.rancune.learningandroid.opengl.util.GLHelper;
 
 /**
  * Created by Rancune@126.com 2018/7/18.
@@ -24,7 +25,9 @@ public class SaturationRender implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        int textId = GLHelper.load2DTexture();
         mFilter.performCreate();
+        mFilter.setTextureId(textId);
     }
 
     @Override
@@ -35,6 +38,7 @@ public class SaturationRender implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         mFilter.performDraw();
     }
 

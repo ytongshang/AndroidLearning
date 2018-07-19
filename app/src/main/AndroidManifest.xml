@@ -32,14 +32,25 @@
             android:process=":remote" />
 
         <!--OpenGL-->
-        <activity android:name=".opengl.OpenGLMainActivity"
-            android:label="@string/activity_opengl"/>
+        <activity
+            android:name=".opengl.OpenGLMainActivity"
+            android:label="@string/activity_opengl" />
 
         <activity
             android:name=".opengl.ui.OpenGLBasisActivity"
             android:theme="@style/AppTheme" />
-        <activity android:name=".opengl.ui.OpenGLCameraActivity" />
-        <activity android:name=".opengl.ui.OpenGLSaturationActivity" />
+
+        <activity
+            android:name=".opengl.ui.OpenGLCameraActivity"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".opengl.ui.OpenGLSaturationActivity"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".opengl.ui.OpenGLFboActivity"
+            android:theme="@style/AppTheme" />
 
 
     </application>

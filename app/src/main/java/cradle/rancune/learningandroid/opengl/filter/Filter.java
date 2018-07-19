@@ -24,7 +24,7 @@ public abstract class Filter {
     };
     protected FloatBuffer mVertexBuffer;
 
-    protected static final float[] sCoords = {
+    protected static final float[] sTextureCoords = {
             0.0f, 0.0f, // 左上
             0.0f, 1.0f, // 左下
             1.0f, 0.0f, // 右上
@@ -36,9 +36,10 @@ public abstract class Filter {
             1.0f, 1.0f, // 右上
             1.0f, 0.0f // 右下
     };
-    protected FloatBuffer mCoordBuffer;
+    protected FloatBuffer mTextureCoordBuffer;
 
     protected int mProgram;
+    protected int mTextureId;
 
     protected float[] mMatrix = new float[16];
     protected float[] mTextureMatrix = new float[16];
@@ -48,7 +49,7 @@ public abstract class Filter {
     public Filter(Context context) {
         mContext = context;
         mVertexBuffer = GLHelper.createFloatBuffer(sVertices);
-        mCoordBuffer = GLHelper.createFloatBuffer(sCoords);
+        mTextureCoordBuffer = GLHelper.createFloatBuffer(sTextureCoords);
         Matrix.setIdentityM(mMatrix, 0);
         Matrix.setIdentityM(mTextureMatrix, 0);
     }
@@ -59,18 +60,29 @@ public abstract class Filter {
 
     public abstract void onCreate();
 
-    public abstract void onSizeChanged(int width, int height);
-
     public final void performDraw() {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         GLES20.glUseProgram(mProgram);
         onDraw();
     }
 
     public abstract void onDraw();
 
+    public final void performDestroy() {
+        onDestroy();
+    }
+
+    public void onDestroy() {
+
+    }
+
+    public abstract void onSizeChanged(int width, int height);
+
     public void setTextureMatrix(float[] matrix) {
         mTextureMatrix = matrix;
+    }
+
+    public void setTextureId(int id) {
+        mTextureId = id;
     }
 
     protected void createProgram(String vertexCode, String fragmentCode) {

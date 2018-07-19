@@ -6,7 +6,6 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
 import cradle.rancune.learningandroid.opengl.filter.Filter;
-import cradle.rancune.learningandroid.opengl.util.GLHelper;
 import cradle.rancune.learningandroid.opengl.util.MatrixUtils;
 
 /**
@@ -19,8 +18,6 @@ public class SaturationFilter extends Filter {
     private int mCoordMatrixPosition;
     private int mTexturePosition;
     private int mSaturationPosition;
-
-    private int mTexture;
 
     private float mSaturation;
     private Bitmap mBitmap;
@@ -41,8 +38,6 @@ public class SaturationFilter extends Filter {
         mCoordMatrixPosition = getUniformLocation("uTextureCoordMatrix");
         mTexturePosition = getUniformLocation("uTexture");
         mSaturationPosition = getUniformLocation("uSaturation");
-
-        mTexture = GLHelper.load2DTexture();
     }
 
     @Override
@@ -66,7 +61,7 @@ public class SaturationFilter extends Filter {
         GLES20.glUniformMatrix4fv(mCoordMatrixPosition, 1, false, mTextureMatrix, 0);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTexture);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureId);
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mBitmap, 0);
         GLES20.glUniform1i(mTexturePosition, 0);
 
@@ -74,7 +69,7 @@ public class SaturationFilter extends Filter {
         GLES20.glVertexAttribPointer(mVertexPosition, 2, GLES20.GL_FLOAT, false, 2 * 4, mVertexBuffer);
 
         GLES20.glEnableVertexAttribArray(mTextureCoordPosition);
-        GLES20.glVertexAttribPointer(mTextureCoordPosition, 2, GLES20.GL_FLOAT, false, 2 * 4, mCoordBuffer);
+        GLES20.glVertexAttribPointer(mTextureCoordPosition, 2, GLES20.GL_FLOAT, false, 2 * 4, mTextureCoordBuffer);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
@@ -84,9 +79,11 @@ public class SaturationFilter extends Filter {
 
     public void setBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
-        MatrixUtils.getMatrix(mMatrix, MatrixUtils.ScaleTye.CENTER_CROP,
-                mBitmap.getWidth(), mBitmap.getHeight(),
-                mViewWidth, mViewHeight);
+        if (mViewHeight != 0 && mViewWidth != 0) {
+            MatrixUtils.getMatrix(mMatrix, MatrixUtils.ScaleTye.CENTER_CROP,
+                    mBitmap.getWidth(), mBitmap.getHeight(),
+                    mViewWidth, mViewHeight);
+        }
     }
 
     public void setSaturation(float saturation) {

@@ -18,8 +18,6 @@ public class CameraFilter extends Filter {
     private int mCoordMatrixPosition;
     private int mTexturePosition;
 
-    private int mOesTexture;
-
     private int mPreviewWidth;
     private int mPreviewHeight;
 
@@ -44,18 +42,9 @@ public class CameraFilter extends Filter {
         mCoordMatrixPosition = getUniformLocation("uTextureCoordMatrix");
         mTexturePosition = getUniformLocation("uOESTexture");
 
-        int[] texture = new int[1];
-        GLES20.glGenTextures(1, texture, 0);
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture[0]);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-        mOesTexture = texture[0];
-
-        mCoordBuffer.clear();
-        mCoordBuffer.put(sCameraCoords);
-        mCoordBuffer.position(0);
+        mTextureCoordBuffer.clear();
+        mTextureCoordBuffer.put(sCameraCoords);
+        mTextureCoordBuffer.position(0);
     }
 
     @Override
@@ -71,22 +60,18 @@ public class CameraFilter extends Filter {
         GLES20.glUniformMatrix4fv(mCoordMatrixPosition, 1, false, mTextureMatrix, 0);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, mOesTexture);
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, mTextureId);
         GLES20.glUniform1i(mTexturePosition, 0);
 
         GLES20.glEnableVertexAttribArray(mVertexPosition);
         GLES20.glVertexAttribPointer(mVertexPosition, 2, GLES20.GL_FLOAT, false, 2 * 4, mVertexBuffer);
 
         GLES20.glEnableVertexAttribArray(mCoordMatrixPosition);
-        GLES20.glVertexAttribPointer(mCoordPosition, 2, GLES20.GL_FLOAT, false, 2 * 4, mCoordBuffer);
+        GLES20.glVertexAttribPointer(mCoordPosition, 2, GLES20.GL_FLOAT, false, 2 * 4, mTextureCoordBuffer);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
         GLES20.glDisableVertexAttribArray(mVertexPosition);
         GLES20.glDisableVertexAttribArray(mCoordPosition);
-    }
-
-    public int getTextureId() {
-        return mOesTexture;
     }
 }
