@@ -83,7 +83,7 @@ public class LollipopCamera implements ICamera {
 
     @SuppressLint("MissingPermission")
     @Override
-    public void startPreview() {
+    public boolean startPreview() {
         if (mFacing != mTargetFacing) {
             release();
         }
@@ -97,11 +97,11 @@ public class LollipopCamera implements ICamera {
                 }
             }
         } catch (CameraAccessException e) {
-            e.printStackTrace();
+            Logger.e(TAG, "getCameraIdList failed", e);
         }
         if (Objects.isEmpty(mCameraId)) {
             Logger.d(TAG, "camera facing=" + mTargetFacing + " not found");
-            return;
+            return false;
         }
         try {
             mManager.openCamera(mCameraId, new CameraDevice.StateCallback() {
@@ -123,9 +123,11 @@ public class LollipopCamera implements ICamera {
                     mCameraDevice = null;
                 }
             }, mHandler);
+            return true;
         } catch (CameraAccessException e) {
-            e.printStackTrace();
+            Logger.e(TAG, "openCamera failed", e);
         }
+        return false;
     }
 
     @Override

@@ -19,7 +19,7 @@ public interface ICamera {
 
     void setPreviewFrameCallback(PreviewFrameCallback callback);
 
-    void startPreview();
+    boolean startPreview();
 
     void stopPreview();
 

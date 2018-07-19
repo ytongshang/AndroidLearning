@@ -62,13 +62,13 @@ public class KitkatCamera implements ICamera, Camera.PreviewCallback {
     }
 
     @Override
-    public void startPreview() {
+    public boolean startPreview() {
         if (mCamera != null) {
             release();
         }
         if (mSurfaceTexture == null) {
             Logger.d(TAG, "startPreview, but the SurfaceTexture is not set");
-            return;
+            return false;
         }
 
         // 1. 找到目标摄像头
@@ -77,21 +77,26 @@ public class KitkatCamera implements ICamera, Camera.PreviewCallback {
         for (int i = 0; i < numCameras; i++) {
             Camera.getCameraInfo(i, mCameraInfo);
             if (mCameraInfo.facing == translateFacing(mTargetFacing)) {
-                mCamera = Camera.open(i);
+                try {
+                    // 这里一定要加try catch，因为可能权限问题啊，其它应用正在使用啊，有可能打不开的
+                    mCamera = Camera.open(i);
+                } catch (Exception e) {
+                    Logger.e(TAG, "camera open failed", e);
+                }
                 mFacing = mTargetFacing;
                 break;
             }
         }
         if (mCamera == null) {
             Logger.d(TAG, "camera facing=" + mTargetFacing + " not found");
-            return;
+            return false;
         }
 
         // 2. 调整摄像头展示方向
         WindowManager windowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         if (windowManager == null) {
             Logger.d(TAG, "get windowManager failed");
-            return;
+            return false;
         }
         int rotation = windowManager.getDefaultDisplay().getRotation();
         int degrees = 0;
@@ -155,11 +160,16 @@ public class KitkatCamera implements ICamera, Camera.PreviewCallback {
         try {
             mCamera.setPreviewTexture(mSurfaceTexture);
         } catch (IOException e) {
-            Logger.e(TAG, "get windowManager failed", e);
+            Logger.e(TAG, "setPreviewTexture failed", e);
         }
-        mCamera.startPreview();
-
-        mIsPreviewing = true;
+        try {
+            mCamera.startPreview();
+            mIsPreviewing = true;
+            return true;
+        } catch (Exception e) {
+            Logger.e(TAG, "camera startPreview failed", e);
+        }
+        return false;
     }
 
     @Override
