@@ -69,7 +69,18 @@ public class CameraView extends GLSurfaceView implements GLSurfaceView.Renderer 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
-        mFilter.setPreviewSize(mCamera.getPreviewWidth(), mCamera.getPreviewHeight());
+        int orientation = mCamera.getDisplayOrientation();
+        int w;
+        int h;
+        if (orientation == 0 || orientation == 180) {
+            // 横屏
+            w = mCamera.getPreviewWidth();
+            h = mCamera.getPreviewHeight();
+        } else {
+            w = mCamera.getPreviewHeight();
+            h = mCamera.getPreviewWidth();
+        }
+        mFilter.setPreviewSize(w, h);
         mFilter.onSizeChanged(width, height);
     }
 

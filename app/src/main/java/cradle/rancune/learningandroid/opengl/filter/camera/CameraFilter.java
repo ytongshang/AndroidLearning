@@ -51,7 +51,7 @@ public class CameraFilter extends Filter {
     public void onSizeChanged(int width, int height) {
         mViewWidth = width;
         mViewHeight = height;
-        MatrixUtils.getMatrix(mMatrix, MatrixUtils.ScaleTye.CENTER_CROP, mPreviewWidth, mPreviewHeight, mViewWidth, mPreviewHeight);
+        MatrixUtils.getMatrix(mMatrix, MatrixUtils.ScaleTye.CENTER_CROP, mPreviewWidth, mPreviewHeight, mViewWidth, mViewHeight);
     }
 
     @Override
