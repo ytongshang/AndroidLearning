@@ -52,6 +52,10 @@
             android:name=".opengl.ui.OpenGLFboActivity"
             android:theme="@style/AppTheme" />
 
+        <activity
+            android:name=".opengl.ui.OpenGLEglActivity"
+            android:theme="@style/AppTheme" />
+
 
     </application>
 

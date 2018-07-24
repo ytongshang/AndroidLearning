@@ -21,7 +21,7 @@
     <string name="activity_opengl8">OpenGL相机</string>
     <string name="activity_opengl9">OpenGL图片饱和度</string>
     <string name="activity_opengl10">OpenGL FBO</string>
-
+    <string name="activity_opengl11">OpenGL EGL</string>
 
     <string name="btn_get_display_rotation">Display Rotation</string>
     <string name="btn_switch_camera">切换摄像头</string>

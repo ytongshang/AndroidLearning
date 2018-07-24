@@ -17,6 +17,7 @@ import cradle.rancune.learningandroid.BaseActivity;
 import cradle.rancune.learningandroid.R;
 import cradle.rancune.learningandroid.opengl.ui.OpenGLBasisActivity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGLCameraActivity;
+import cradle.rancune.learningandroid.opengl.ui.OpenGLEglActivity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGLFboActivity;
 import cradle.rancune.learningandroid.opengl.ui.OpenGLSaturationActivity;
 
@@ -58,6 +59,11 @@ public class OpenGLMainActivity extends BaseActivity {
         fbo.title = R.string.activity_opengl10;
         fbo.intent = new Intent(mContext, OpenGLFboActivity.class);
         mPages.add(fbo);
+
+        Page egl = new Page();
+        egl.title = R.string.activity_opengl11;
+        egl.intent = new Intent(mContext, OpenGLEglActivity.class);
+        mPages.add(egl);
 
         mAdapter.notifyDataSetChanged();
     }
