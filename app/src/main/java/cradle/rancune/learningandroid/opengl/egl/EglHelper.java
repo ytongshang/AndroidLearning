@@ -16,9 +16,6 @@ import android.view.Surface;
 @SuppressWarnings("WeakerAccess")
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class EglHelper {
-    public static final int SURFACE_PBUFFER = 1;
-    public static final int SURFACE_WINDOW = 2;
-
     private static final int EGL_RECORDABLE_ANDROID = 0x3142;
 
     private static final Chooser sDefaultChooser;

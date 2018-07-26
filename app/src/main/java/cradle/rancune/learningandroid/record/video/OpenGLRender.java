@@ -22,9 +22,6 @@ import cradle.rancune.learningandroid.opengl.util.GLHelper;
 public class OpenGLRender {
     private static final String TAG = "OpenGLRender";
 
-    public static final int GL_2D = 1;
-    public static final int GL_OES = 2;
-
     private static final String VERTEX =
             "attribute vec4 aPosition;\n" +
                     "attribute vec2 aTextureCoordinate;\n" +
@@ -49,10 +46,10 @@ public class OpenGLRender {
                     "precision mediump float;\n" +
                     "uniform samplerExternalOES uOESTexture;\n" +
                     "uniform sampler2D uTexture;\n" +
-                    "uniform bool is2D;\n" +
+                    "uniform bool uFlag2DTexture;\n" +
                     "varying vec2 vTextureCoordinate;\n" +
                     "void main() {\n" +
-                    "    gl_FragColor = is2D ? texture2D(uTexture, vTextureCoordinate):texture2D(uOESTexture, vTextureCoordinate);\n" +
+                    "    gl_FragColor = uFlag2DTexture ? texture2D(uTexture, vTextureCoordinate):texture2D(uOESTexture, vTextureCoordinate);\n" +
                     "}\n";
 
     private static final float[] VERTICES = {
@@ -103,22 +100,17 @@ public class OpenGLRender {
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTextureCoordBuffer;
 
-    private final float[] mMvpMatrix = new float[16];
-    private final float[] mTextureMatrix = new float[16];
-
     private int mRenderWidth;
     private int mRenderHeight;
 
     private Bitmap mWatermark;
     private boolean mIsWatermarkEnabled = false;
 
-    private boolean mIs2D = false;
+    private boolean mShow2DTexture = false;
 
     private boolean mIsInited = false;
 
     public OpenGLRender() {
-        Matrix.setIdentityM(mMvpMatrix, 0);
-        Matrix.setIdentityM(mTextureMatrix, 0);
         mVertexBuffer = GLHelper.createFloatBuffer(VERTICES);
         mTextureCoordBuffer = GLHelper.createFloatBuffer(TEXTURECOORDS);
     }
@@ -149,7 +141,7 @@ public class OpenGLRender {
 
         // create gl program
         int vertex = GLHelper.compileShader(GLES20.GL_VERTEX_SHADER, VERTEX);
-        int fragment = GLHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_2D);
+        int fragment = GLHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_OES);
         if (vertex < 0 || fragment < 0) {
             Logger.e(TAG, "OpenGLRender create shader failed");
             destroy();
@@ -169,10 +161,15 @@ public class OpenGLRender {
         mTextureMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uTextureCoordMatrix");
         mOESTextureHandle = GLES20.glGetUniformLocation(mProgram, "uOESTexture");
         mTextureHandle = GLES20.glGetUniformLocation(mProgram, "uTexture");
-        mFlag2DHandle = GLES20.glGetUniformLocation(mProgram, "is2D");
+        mFlag2DHandle = GLES20.glGetUniformLocation(mProgram, "uFlag2DTexture");
 
         // create texture
-        mTextures = createTextures();
+        try {
+            mTextures = createTextures();
+        } catch (Exception e) {
+            Logger.e(TAG, "OpenGLRender createTextures failed", e);
+            return false;
+        }
 
         //watermark
         if (mWatermark != null && !mWatermark.isRecycled()) {
@@ -193,8 +190,8 @@ public class OpenGLRender {
         mRenderWidth = 0;
     }
 
-    public void doRender(float[] matrix, long presentationTime) {
-        if (!mIsInited || matrix == null) {
+    public void doRender(float[] mvpMatrix, float[] textureMatrix, long presentationTime) {
+        if (!mIsInited || mvpMatrix == null) {
             return;
         }
 
@@ -204,21 +201,37 @@ public class OpenGLRender {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
+        GLES20.glUniformMatrix4fv(mTextureMatrixHandle, 1, false, textureMatrix, 0);
         // oes texture
-        GLES20.glUniform1i(mOESTextureHandle, 0);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, mTextures[TEXTURE_INDEX_OES]);
-
-        // foreground
-        GLES20.glUniform1i(mTextureHandle, 1);
+        GLES20.glUniform1i(mOESTextureHandle, 0);
+        // foreground texture
         GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextures[TEXTURE_INDEX_FOREGROUND]);
+        GLES20.glUniform1i(mTextureHandle, 1);
+        GLES20.glUniform1i(mFlag2DHandle, mShow2DTexture ? 1 : 0);
+
+        GLES20.glUniformMatrix4fv(mMvpMatrixHandle, 1, false, mvpMatrix, 0);
+        // vetex
+        GLES20.glEnableVertexAttribArray(mVetexCoordsHandle);
+        GLES20.glVertexAttribPointer(mVetexCoordsHandle, 2, GLES20.GL_FLOAT, false, 2 * 4, mVertexBuffer);
+        // texture
+        GLES20.glEnableVertexAttribArray(mTextureCoordsHandle);
+        GLES20.glVertexAttribPointer(mTextureCoordsHandle, 2, GLES20.GL_FLOAT, false, 2 * 4, mTextureCoordBuffer);
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+
+        GLES20.glDisableVertexAttribArray(mVetexCoordsHandle);
+        GLES20.glDisableVertexAttribArray(mTextureCoordsHandle);
+
+        mEglHelper.swapBuffers();
     }
 
     private int[] createTextures() {
-        int[] textures = new int[2];
+        int[] textures = new int[3];
 
-        GLES20.glGenTextures(2, textures, 0);
+        GLES20.glGenTextures(3, textures, 0);
         GLHelper.checkGlError("glGenTextures");
 
         // oes
@@ -235,6 +248,13 @@ public class OpenGLRender {
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
+        // foreground
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[TEXTURE_INDEX_FOREGROUND]);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+
         return textures;
     }
 
@@ -243,7 +263,7 @@ public class OpenGLRender {
         if (mTextures != null) {
             int[] texture = mTextures;
             mTextures = null;
-            GLES20.glDeleteTextures(2, texture, 0);
+            GLES20.glDeleteTextures(texture.length, texture, 0);
         }
     }
 
