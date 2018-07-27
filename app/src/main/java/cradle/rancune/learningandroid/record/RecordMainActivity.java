@@ -1,6 +1,5 @@
-package cradle.rancune.learningandroid;
+package cradle.rancune.learningandroid.record;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -14,11 +13,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import cradle.rancune.learningandroid.aidl.client.BookManagerClientActivity;
-import cradle.rancune.learningandroid.opengl.OpenGLMainActivity;
-import cradle.rancune.learningandroid.record.RecordMainActivity;
+import cradle.rancune.learningandroid.BaseActivity;
+import cradle.rancune.learningandroid.R;
+import cradle.rancune.learningandroid.record.ui.AudioRecordActivity;
 
-public class MainActivity extends BaseActivity {
+public class RecordMainActivity extends BaseActivity {
 
     private Adapter mAdapter;
     private final List<Page> mPages = new ArrayList<>();
@@ -34,20 +33,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void initData() {
-        Page aidl = new Page();
-        aidl.title = R.string.activity_aidl;
-        aidl.target = BookManagerClientActivity.class;
-        mPages.add(aidl);
-
-        Page opengl01 = new Page();
-        opengl01.title = R.string.activity_opengl;
-        opengl01.target = OpenGLMainActivity.class;
-        mPages.add(opengl01);
-
-        Page record = new Page();
-        record.title = R.string.activity_record;
-        record.target = RecordMainActivity.class;
-        mPages.add(record);
+        Page audio = new Page();
+        audio.title = R.string.activity_record1;
+        audio.intent = new Intent(mContext, AudioRecordActivity.class);
+        mPages.add(audio);
 
         mAdapter.notifyDataSetChanged();
     }
@@ -57,7 +46,7 @@ public class MainActivity extends BaseActivity {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(MainActivity.this).inflate(R.layout.reycle_item_main_page, parent, false);
+            View v = LayoutInflater.from(RecordMainActivity.this).inflate(R.layout.reycle_item_main_page, parent, false);
             return new ViewHolder(v);
         }
 
@@ -91,8 +80,7 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             if (mPage != null) {
-                Intent intent = new Intent(MainActivity.this, mPage.target);
-                startActivity(intent);
+                startActivity(mPage.intent);
             }
         }
     }
@@ -101,7 +89,6 @@ public class MainActivity extends BaseActivity {
 
         @StringRes
         int title;
-        Class<? extends Activity> target;
         Intent intent;
     }
 }

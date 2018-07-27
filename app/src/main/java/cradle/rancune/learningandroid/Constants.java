@@ -6,4 +6,5 @@ package cradle.rancune.learningandroid;
 public final class Constants {
     public static final String CACHE_DIR = "/Rancune";
     public static final String IMAGE_CAHCE = CACHE_DIR + "/image";
+    public static final String AUDIO_CAHCE = CACHE_DIR + "/audio";
 }

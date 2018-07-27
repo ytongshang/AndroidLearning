@@ -8,6 +8,7 @@
     <!--main-->
     <string name="activity_aidl">学习AIDL</string>
     <string name="activity_opengl">OpenglES</string>
+    <string name="activity_record">Record</string>
 
     <!--opengl-->
     <string name="activity_opengl1">OpenGL简介</string>
@@ -17,11 +18,13 @@
     <string name="activity_opengl5">OpenGL圆形</string>
     <string name="activity_opengl6">OpenGL DrawElements</string>
     <string name="activity_opengl7">OpenGL初识纹理</string>
-
     <string name="activity_opengl8">OpenGL相机</string>
     <string name="activity_opengl9">OpenGL图片饱和度</string>
     <string name="activity_opengl10">OpenGL FBO</string>
     <string name="activity_opengl11">OpenGL EGL</string>
+
+    <!--record-->
+    <string name="activity_record1">Audio Record AAC</string>
 
     <string name="btn_get_display_rotation">Display Rotation</string>
     <string name="btn_switch_camera">切换摄像头</string>

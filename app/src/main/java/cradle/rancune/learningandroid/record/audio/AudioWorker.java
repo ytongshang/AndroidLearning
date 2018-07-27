@@ -10,7 +10,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import cradle.rancune.commons.logging.Logger;
@@ -32,17 +31,22 @@ public class AudioWorker implements Runnable {
     private AudioHandler mHandler;
     private boolean mRunning = false;
     private boolean mReady = false;
-    private boolean mStopped = false;
     private boolean mPaused = false;
+    private boolean mStopped = false;
 
     private AudioRecord mRecord;
     private AudioEncoder mEncoder;
+    private AudioCallback mCallback;
 
     public AudioWorker(AudioConfig config) {
         if (config == null) {
             config = new AudioConfig();
         }
         mConfig = config;
+    }
+
+    public void setCallback(AudioCallback callback) {
+        mCallback = callback;
     }
 
     public void start() {
@@ -65,11 +69,29 @@ public class AudioWorker implements Runnable {
     }
 
     public void resume() {
-
+        synchronized (mLock) {
+            if (!mRunning) {
+                return;
+            }
+            if (!mPaused) {
+                return;
+            }
+        }
+        mPaused = false;
+        mHandler.sendEmptyMessage(MSG_FRAME);
     }
 
     public void pause() {
-
+        synchronized (mLock) {
+            if (!mRunning) {
+                return;
+            }
+            if (mPaused) {
+                return;
+            }
+        }
+        mPaused = false;
+        mHandler.removeMessages(MSG_FRAME);
     }
 
     public void stop() {
@@ -79,14 +101,6 @@ public class AudioWorker implements Runnable {
             }
             if (mStopped) {
                 return;
-            }
-
-            while (!mReady) {
-                try {
-                    mLock.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
         }
         mStopped = true;
@@ -110,7 +124,7 @@ public class AudioWorker implements Runnable {
         }
     }
 
-    private boolean performStart() {
+    private void performStart() {
         int sampleRate = mConfig.getSampleRate();
         int channelConfig = mConfig.getChannel();
         int format = mConfig.getFormat();
@@ -124,16 +138,23 @@ public class AudioWorker implements Runnable {
             mRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfig, format, bufferSize);
         } catch (Exception e) {
             Logger.e(TAG, "AudioRecord create failed", e);
-            return false;
+            if (mCallback != null) {
+                mCallback.onError(AudioCallback.ERROR_CREATE_RECORD, e);
+            }
+            return;
         }
         mConfig.setMinBufferSize(bufferSize);
 
         // create audioEncoder
         try {
             mEncoder = new AudioEncoder(mConfig);
-        } catch (IOException e) {
+            mEncoder.setCallback(mCallback);
+        } catch (Exception e) {
             Logger.e(TAG, "AudioEncoder create failed", e);
-            return false;
+            if (mCallback != null) {
+                mCallback.onError(AudioCallback.ERROR_CREATE_ENCODER, e);
+            }
+            return;
         }
 
         // start recording
@@ -141,26 +162,65 @@ public class AudioWorker implements Runnable {
             mRecord.startRecording();
         } catch (IllegalStateException e) {
             Logger.e(TAG, "AudioRecord startRecording failed", e);
-            return false;
+            if (mCallback != null) {
+                mCallback.onError(AudioCallback.ERROR_START_RECORD, e);
+            }
+            return;
         }
 
         try {
             mEncoder.start();
         } catch (Exception e) {
             Logger.e(TAG, "AudioEncoder start failed", e);
-            return false;
+            if (mCallback != null) {
+                mCallback.onError(AudioCallback.ERROR_START_ENCODER, e);
+            }
+            return;
         }
 
+        if (mCallback != null) {
+            mCallback.onState(AudioCallback.STATE_START);
+        }
         mHandler.sendEmptyMessage(MSG_FRAME);
-        return true;
     }
 
-    private void performPullData(boolean endOfStream) {
+    private void performStop() {
+        if (mRecord != null) {
+            try {
+                mRecord.stop();
+                mRecord.release();
+                mRecord = null;
+            } catch (Exception e) {
+                Logger.e(TAG, "AudioRecord stop failed", e);
+                if (mCallback != null) {
+                    mCallback.onError(AudioCallback.ERROR_STOP_RECORD, e);
+                }
+            }
+        }
+
+        if (mEncoder != null) {
+            try {
+                mEncoder.stop();
+                mEncoder = null;
+            } catch (Exception e) {
+                Logger.e(TAG, "AudioEncoder stop failed", e);
+                if (mCallback != null) {
+                    mCallback.onError(AudioCallback.ERROR_STOP_ENCODER, e);
+                }
+            }
+        }
+
+        if (mCallback != null) {
+            mCallback.onState(AudioCallback.STATE_STOP);
+        }
+    }
+
+    private void performFrame(boolean endOfStream) {
         // 原始音频数据写入MediaCodec
-        mEncoder.push(mRecord, endOfStream);
+        mEncoder.offer(mRecord, endOfStream);
 
         // 消费编码好的音频数据
-        mEncoder.pop(endOfStream);
+        mEncoder.consume(endOfStream);
 
         synchronized (mLock) {
             if (mStopped || mPaused) {
@@ -168,9 +228,6 @@ public class AudioWorker implements Runnable {
             }
         }
         mHandler.sendEmptyMessage(MSG_FRAME);
-    }
-
-    private void performStop() {
     }
 
     private static class AudioHandler extends Handler {
@@ -193,12 +250,13 @@ public class AudioWorker implements Runnable {
                     break;
                 }
                 case MSG_FRAME: {
-                    worker.performStart();
+                    worker.performFrame(false);
                     break;
                 }
                 case MSG_STOP: {
-                    worker.performPullData(true);
+                    worker.performFrame(true);
                     worker.performStop();
+                    getLooper().quit();
                     break;
                 }
             }
