@@ -51,6 +51,8 @@ public class ScreenCaptureMuxer implements Runnable {
 
 
     public void stop() {
+        mVideoData.clear();
+        mAudioData.clear();
         mStopSingal = true;
     }
 

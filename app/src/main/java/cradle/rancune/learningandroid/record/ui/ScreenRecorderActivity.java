@@ -111,6 +111,10 @@ public class ScreenRecorderActivity extends BaseActivity implements View.OnClick
             mAudioWorker.stop();
             mAudioWorker = null;
         }
+        if (mMuxer != null) {
+            mMuxer.stop();
+            mMuxer = null;
+        }
     }
 
     private void setupRecod() {
