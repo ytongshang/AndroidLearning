@@ -25,10 +25,15 @@
 
     <!--record-->
     <string name="activity_record1">Audio Record AAC</string>
+    <string name="activity_record2">录屏合成mp4</string>
 
     <string name="btn_get_display_rotation">Display Rotation</string>
     <string name="btn_switch_camera">切换摄像头</string>
 
     <string name="toast_display_rotation">Display Rotation:%d</string>
     <string name="toast_save_picture_sucess">图片保存成功</string>
+
+    <string name="toast_record_screen_not_available">该手机不支持录屏！</string>
+    <string name="toast_record_screen_permission_denied">录屏权限被拒绝了，你还想干嘛</string>
+    <string name="toast_record_screen_muxer_failed">合成视频失败了！！！</string>
 </resources>

@@ -7,4 +7,5 @@ public final class Constants {
     public static final String CACHE_DIR = "/Rancune";
     public static final String IMAGE_CAHCE = CACHE_DIR + "/image";
     public static final String AUDIO_CAHCE = CACHE_DIR + "/audio";
+    public static final String VIDEO_CAHCE = CACHE_DIR + "/video";
 }

@@ -2,6 +2,7 @@ package cradle.rancune.learningandroid.record.ui;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Environment;
 import android.view.View;
@@ -19,7 +20,7 @@ import cradle.rancune.commons.util.IOUtils;
 import cradle.rancune.learningandroid.BaseActivity;
 import cradle.rancune.learningandroid.Constants;
 import cradle.rancune.learningandroid.R;
-import cradle.rancune.learningandroid.record.audio.AudioCallback;
+import cradle.rancune.learningandroid.record.RecordCallback;
 import cradle.rancune.learningandroid.record.audio.AudioConfig;
 import cradle.rancune.learningandroid.record.audio.AudioWorker;
 import cradle.rancune.learningandroid.record.util.ADTSUtils;
@@ -60,16 +61,16 @@ public class AudioRecordActivity extends BaseActivity implements View.OnClickLis
             e.printStackTrace();
         }
         mConfig = new AudioConfig();
-        mWorker = new AudioWorker(mConfig);
-        mWorker.setCallback(new AudioCallback() {
+        mWorker = new AudioWorker(mConfig, new RecordCallback() {
+
             @Override
             public void onState(int state) {
                 switch (state) {
-                    case AudioCallback.STATE_START: {
+                    case RecordCallback.STATE_AUDIO_START: {
                         mIsRecording = true;
                         break;
                     }
-                    case AudioCallback.STATE_STOP: {
+                    case RecordCallback.STATE_AUDIO_STOP: {
                         mIsRecording = false;
                         break;
                     }
@@ -81,6 +82,10 @@ public class AudioRecordActivity extends BaseActivity implements View.OnClickLis
                 Logger.e(TAG, "", e);
             }
 
+            @Override
+            public void onFormatChanged(MediaFormat format) {
+
+            }
 
             @Override
             public void onOutputAvailable(MediaCodec.BufferInfo info, ByteBuffer buffer) {

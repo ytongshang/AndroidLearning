@@ -5,8 +5,10 @@ import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
+import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.Surface;
 
 
@@ -143,6 +145,13 @@ public class EglHelper {
     public void swapBuffers() {
         if (mDisplay != null && mSurface != null) {
             EGL14.eglSwapBuffers(mDisplay, mSurface);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public void setPresentationTime(long presentationTime) {
+        if (null != mDisplay && null != mSurface) {
+            EGLExt.eglPresentationTimeANDROID(mDisplay, mSurface, presentationTime);
         }
     }
 

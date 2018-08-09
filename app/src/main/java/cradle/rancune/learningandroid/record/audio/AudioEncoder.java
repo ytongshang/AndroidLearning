@@ -9,6 +9,7 @@ import android.support.annotation.RequiresApi;
 import java.nio.ByteBuffer;
 
 import cradle.rancune.commons.logging.Logger;
+import cradle.rancune.learningandroid.record.RecordCallback;
 
 /**
  * Created by Rancune@126.com 2018/7/24.
@@ -22,7 +23,7 @@ public class AudioEncoder {
 
     private AudioConfig mConfig;
     private MediaCodec mEncoder;
-    private AudioCallback mCallback;
+    private RecordCallback mCallback;
 
     /**
      * 每秒钟采集的数据大小
@@ -34,7 +35,8 @@ public class AudioEncoder {
     private long mLastFrameEncodeEndTimeUs = 0;
     private boolean mUnExpectedEndOfStream = false;
 
-    public AudioEncoder(AudioConfig config) throws Exception {
+    public AudioEncoder(AudioConfig config, RecordCallback callback) throws Exception {
+        mCallback = callback;
         String mineType = config.getMime();
         MediaFormat format = MediaFormat.createAudioFormat(mineType, config.getSampleRate(),
                 config.getSizeOfChannel());
@@ -44,7 +46,7 @@ public class AudioEncoder {
         mSampleByteSizeInSec = config.getSampleRate() * config.getSizeOfChannel() * config.getByteOfFormat();
     }
 
-    public void setCallback(AudioCallback callback) {
+    public void setCallback(RecordCallback callback) {
         mCallback = callback;
     }
 
@@ -87,7 +89,7 @@ public class AudioEncoder {
         } catch (Exception e) {
             Logger.e(TAG, "AudioEncoder offer error", e);
             if (mCallback != null) {
-                mCallback.onError(AudioCallback.ERROR_ENCODER_OFFER, e);
+                mCallback.onError(RecordCallback.ERROR_AUDIO_ENCODER_OFFER, e);
             }
         }
     }
@@ -106,6 +108,9 @@ public class AudioEncoder {
                 } else if (buffIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     // 输出格式发生了变化
                     MediaFormat format = mEncoder.getOutputFormat();
+                    if (mCallback != null) {
+                        mCallback.onFormatChanged(format);
+                    }
                 } else if (buffIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                     // 输出的buffer数组发生了变化
                     buffers = mEncoder.getOutputBuffers();
@@ -114,9 +119,6 @@ public class AudioEncoder {
                     Logger.w(TAG, "Mediacodec dequeueOutputBuffer, buffIndex < 0");
                 } else {
                     ByteBuffer buffer = buffers[buffIndex];
-                    buffer.position(info.offset);
-                    buffer.limit(info.offset + info.size);
-                    info.offset = 0;
 
                     if (mCallback != null) {
                         mCallback.onOutputAvailable(info, buffer);
@@ -136,7 +138,7 @@ public class AudioEncoder {
         } catch (Exception e) {
             Logger.e(TAG, "AudioEncoder consumer error", e);
             if (mCallback != null) {
-                mCallback.onError(AudioCallback.ERROR_ENCODER_OFFER, e);
+                mCallback.onError(RecordCallback.ERROR_AUDIO_ENCODER_OFFER, e);
             }
         }
     }

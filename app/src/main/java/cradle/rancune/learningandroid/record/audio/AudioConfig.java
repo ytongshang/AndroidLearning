@@ -25,6 +25,7 @@ public class AudioConfig {
     private String mime = "audio/mp4a-latm";
     /**
      * 音频码率，单位：比特每秒（bit/s），常用码率：64k，128k，192k，256k，320k等。
+     * 以默认配置算 bitrate 44100*16*1 =  705600
      */
     private int bitRate = 64000;
 

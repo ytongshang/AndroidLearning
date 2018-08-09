@@ -1,9 +1,12 @@
 package cradle.rancune.learningandroid.record.video;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.media.MediaCodecInfo;
 import android.os.Build;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
 
 /**
  * Created by Rancune@126.com 2018/7/26.
@@ -46,6 +49,55 @@ public class VideoConfig {
     private int iFrameRate = 2; // 2s内1个关键帧
     private int bitRate = 1000 * 2000; // 比特率/码率 2000kbps
     private int colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
-    private int orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    private int orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
     private float screenRatio = -1; // 屏幕长宽比 1280 : 720 = 16 : 9
+
+    public VideoConfig(Context context) {
+        calculateRatio(context);
+    }
+
+    private float calculateRatio(Context context) {
+        DisplayMetrics dm = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(dm);
+        int heightPixels = dm.heightPixels;
+        int widthPixels = dm.widthPixels;
+        float density = dm.density;
+        int screenPortraitHeight = Math.max(heightPixels, widthPixels);
+        int screenPortraitWidth = Math.min(heightPixels, widthPixels);
+        return (screenPortraitHeight * density) / (screenPortraitWidth * density);
+    }
+
+
+    public int getDpi() {
+        return dpi;
+    }
+
+    public String getMime() {
+        return mime;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getFrameRate() {
+        return frameRate;
+    }
+
+    public int getiFrameRate() {
+        return iFrameRate;
+    }
+
+    public int getBitRate() {
+        return bitRate;
+    }
+
+    public int getColorFormat() {
+        return colorFormat;
+    }
 }

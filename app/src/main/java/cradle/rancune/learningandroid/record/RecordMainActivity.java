@@ -16,6 +16,7 @@ import java.util.List;
 import cradle.rancune.learningandroid.BaseActivity;
 import cradle.rancune.learningandroid.R;
 import cradle.rancune.learningandroid.record.ui.AudioRecordActivity;
+import cradle.rancune.learningandroid.record.ui.ScreenRecorderActivity;
 
 public class RecordMainActivity extends BaseActivity {
 
@@ -37,6 +38,11 @@ public class RecordMainActivity extends BaseActivity {
         audio.title = R.string.activity_record1;
         audio.intent = new Intent(mContext, AudioRecordActivity.class);
         mPages.add(audio);
+
+        Page screen = new Page();
+        screen.title = R.string.activity_record2;
+        screen.intent = new Intent(mContext, ScreenRecorderActivity.class);
+        mPages.add(screen);
 
         mAdapter.notifyDataSetChanged();
     }
@@ -90,5 +96,10 @@ public class RecordMainActivity extends BaseActivity {
         @StringRes
         int title;
         Intent intent;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

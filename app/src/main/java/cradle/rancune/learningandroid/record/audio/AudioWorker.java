@@ -13,6 +13,7 @@ import android.os.Process;
 import java.lang.ref.WeakReference;
 
 import cradle.rancune.commons.logging.Logger;
+import cradle.rancune.learningandroid.record.RecordCallback;
 
 /**
  * Created by Rancune@126.com 2018/7/25.
@@ -29,23 +30,21 @@ public class AudioWorker implements Runnable {
 
     private AudioConfig mConfig;
     private AudioHandler mHandler;
+
+    private AudioRecord mRecord;
+    private AudioEncoder mEncoder;
+    private RecordCallback mCallback;
+
     private boolean mRunning = false;
     private boolean mReady = false;
     private boolean mPaused = false;
     private boolean mStopped = false;
 
-    private AudioRecord mRecord;
-    private AudioEncoder mEncoder;
-    private AudioCallback mCallback;
-
-    public AudioWorker(AudioConfig config) {
+    public AudioWorker(AudioConfig config, RecordCallback callback) {
         if (config == null) {
             config = new AudioConfig();
         }
         mConfig = config;
-    }
-
-    public void setCallback(AudioCallback callback) {
         mCallback = callback;
     }
 
@@ -139,7 +138,7 @@ public class AudioWorker implements Runnable {
         } catch (Exception e) {
             Logger.e(TAG, "AudioRecord create failed", e);
             if (mCallback != null) {
-                mCallback.onError(AudioCallback.ERROR_CREATE_RECORD, e);
+                mCallback.onError(RecordCallback.ERROR_AUDIO_CREATE_RECORD, e);
             }
             return;
         }
@@ -147,12 +146,11 @@ public class AudioWorker implements Runnable {
 
         // create audioEncoder
         try {
-            mEncoder = new AudioEncoder(mConfig);
-            mEncoder.setCallback(mCallback);
+            mEncoder = new AudioEncoder(mConfig,mCallback);
         } catch (Exception e) {
             Logger.e(TAG, "AudioEncoder create failed", e);
             if (mCallback != null) {
-                mCallback.onError(AudioCallback.ERROR_CREATE_ENCODER, e);
+                mCallback.onError(RecordCallback.ERROR_AUDIO_CREATE_ENCODER, e);
             }
             return;
         }
@@ -163,7 +161,7 @@ public class AudioWorker implements Runnable {
         } catch (IllegalStateException e) {
             Logger.e(TAG, "AudioRecord startRecording failed", e);
             if (mCallback != null) {
-                mCallback.onError(AudioCallback.ERROR_START_RECORD, e);
+                mCallback.onError(RecordCallback.ERROR_AUDIO_START_RECORD, e);
             }
             return;
         }
@@ -173,13 +171,13 @@ public class AudioWorker implements Runnable {
         } catch (Exception e) {
             Logger.e(TAG, "AudioEncoder start failed", e);
             if (mCallback != null) {
-                mCallback.onError(AudioCallback.ERROR_START_ENCODER, e);
+                mCallback.onError(RecordCallback.ERROR_AUDIO_START_ENCODER, e);
             }
             return;
         }
 
         if (mCallback != null) {
-            mCallback.onState(AudioCallback.STATE_START);
+            mCallback.onState(RecordCallback.STATE_AUDIO_START);
         }
         mHandler.sendEmptyMessage(MSG_FRAME);
     }
@@ -193,7 +191,7 @@ public class AudioWorker implements Runnable {
             } catch (Exception e) {
                 Logger.e(TAG, "AudioRecord stop failed", e);
                 if (mCallback != null) {
-                    mCallback.onError(AudioCallback.ERROR_STOP_RECORD, e);
+                    mCallback.onError(RecordCallback.ERROR_AUDIO_STOP_RECORD, e);
                 }
             }
         }
@@ -205,13 +203,13 @@ public class AudioWorker implements Runnable {
             } catch (Exception e) {
                 Logger.e(TAG, "AudioEncoder stop failed", e);
                 if (mCallback != null) {
-                    mCallback.onError(AudioCallback.ERROR_STOP_ENCODER, e);
+                    mCallback.onError(RecordCallback.ERROR_AUDIO_STOP_ENCODER, e);
                 }
             }
         }
 
         if (mCallback != null) {
-            mCallback.onState(AudioCallback.STATE_STOP);
+            mCallback.onState(RecordCallback.STATE_AUDIO_STOP);
         }
     }
 

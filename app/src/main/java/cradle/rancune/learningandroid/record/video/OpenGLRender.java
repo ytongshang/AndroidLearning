@@ -190,6 +190,7 @@ public class OpenGLRender {
         mRenderWidth = 0;
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void doRender(float[] mvpMatrix, float[] textureMatrix, long presentationTime) {
         if (!mIsInited || mvpMatrix == null) {
             return;
@@ -225,7 +226,12 @@ public class OpenGLRender {
         GLES20.glDisableVertexAttribArray(mVetexCoordsHandle);
         GLES20.glDisableVertexAttribArray(mTextureCoordsHandle);
 
+        mEglHelper.setPresentationTime(presentationTime);
         mEglHelper.swapBuffers();
+    }
+
+    public int getOESTexture() {
+        return mTextures[TEXTURE_INDEX_OES];
     }
 
     private int[] createTextures() {
