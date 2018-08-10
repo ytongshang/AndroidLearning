@@ -33,14 +33,6 @@ public class OpenGLRender {
                     "    vTextureCoordinate=(uTextureCoordMatrix*vec4(aTextureCoordinate,0,1)).xy;\n" +
                     "}\n";
 
-    private static final String FRAGMENT_2D =
-            "precision mediump float;\n" +
-                    "uniform sampler2D uTexture;\n" +
-                    "varying vec2 vTextureCoordinate;\n" +
-                    "void main() {\n" +
-                    "  gl_FragColor=texture2D(uTexture,vTextureCoordinate);\n" +
-                    "}\n";
-
     private static final String FRAGMENT_OES =
             "#extension GL_OES_EGL_image_external : require\n" +
                     "precision mediump float;\n" +
@@ -86,7 +78,7 @@ public class OpenGLRender {
 
     private EglHelper mEglHelper;
 
-    private int mProgram;
+    private int mProgram = -1;
     private int mVetexCoordsHandle;
     private int mTextureCoordsHandle;
     private int mMvpMatrixHandle;
@@ -124,8 +116,8 @@ public class OpenGLRender {
 
         // create egl context
         try {
-            mEglHelper = new EglHelper(EglHelper.getDefaultChooser());
-            mEglHelper.init();
+            mEglHelper = new EglHelper();
+            mEglHelper.init(null, EglHelper.FLAG_TRY_GLES3 | EglHelper.FLAG_RECORDABLE);
         } catch (Exception e) {
             Logger.e(TAG, "OpenGLRender create egl failed", e);
             return false;
@@ -133,7 +125,7 @@ public class OpenGLRender {
 
         // add surface
         try {
-            mEglHelper.resumeWindowSurface(surface);
+            mEglHelper.createWindowSurface(surface);
         } catch (Exception e) {
             Logger.e(TAG, "OpenGLRender resumeWindowSurface failed", e);
             return false;
@@ -173,6 +165,7 @@ public class OpenGLRender {
 
         //watermark
         if (mWatermark != null && !mWatermark.isRecycled()) {
+            mIsWatermarkEnabled = true;
             mWatermark = watermark;
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextures[TEXTURE_INDEX_WATERMARK_2D]);
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mWatermark, 0);
@@ -264,12 +257,15 @@ public class OpenGLRender {
         return textures;
     }
 
-
     private void releaseGl() {
         if (mTextures != null) {
             int[] texture = mTextures;
             mTextures = null;
             GLES20.glDeleteTextures(texture.length, texture, 0);
+        }
+        if (mProgram != -1) {
+            GLES20.glDeleteProgram(mProgram);
+            mProgram = -1;
         }
     }
 

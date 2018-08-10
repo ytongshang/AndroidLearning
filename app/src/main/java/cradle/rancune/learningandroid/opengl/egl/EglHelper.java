@@ -1,6 +1,7 @@
 package cradle.rancune.learningandroid.opengl.egl;
 
 import android.annotation.TargetApi;
+import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
@@ -8,39 +9,42 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.view.Surface;
+
+import cradle.rancune.commons.logging.Logger;
 
 
 /**
  * Created by Rancune@126.com 2018/7/23.
  */
 @SuppressWarnings("WeakerAccess")
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class EglHelper {
+
+    private static final String TAG = "EglHelper";
+
+    /**
+     * init flag: surface must be recordable.  This discourages EGL from using a
+     * pixel format that cannot be converted efficiently to something usable by the video
+     * encoder.
+     */
+    public static final int FLAG_RECORDABLE = 0x01;
+
+    /**
+     * init flag: ask for GLES3, fall back to GLES2 if not available.  Without this
+     * flag, GLES2 is used.
+     */
+    public static final int FLAG_TRY_GLES3 = 0x02;
+
+    // Android-specific extension.
     private static final int EGL_RECORDABLE_ANDROID = 0x3142;
 
-    private static final Chooser sDefaultChooser;
-
-    static {
-        sDefaultChooser = new Chooser()
-                .setRedBit(8)
-                .setGreenBit(8)
-                .setBlueBit(8)
-                .setAlphaBit(8)
-                .setStencilBit(0)
-                .setWithDepth(true);
-    }
-
-    private final Chooser mChooser;
     private EGLDisplay mDisplay = EGL14.EGL_NO_DISPLAY;
-    private EGLSurface mSurface = EGL14.EGL_NO_SURFACE;
     private EGLContext mContext = EGL14.EGL_NO_CONTEXT;
+    private EGLSurface mSurface = EGL14.EGL_NO_SURFACE;
     private EGLConfig mConfig;
 
-    public static Chooser getDefaultChooser() {
-        return sDefaultChooser;
-    }
+    private int mGlVersion = -1;
 
     public static void checkEglError(String msg) {
         int error;
@@ -50,68 +54,77 @@ public class EglHelper {
         }
     }
 
-    public EglHelper(Chooser chooser) {
-        if (chooser == null) {
-            chooser = sDefaultChooser;
+    public void init(EGLContext sharedContext, int flags) {
+        if (sharedContext == null) {
+            sharedContext = EGL14.EGL_NO_CONTEXT;
         }
-        mChooser = chooser;
-    }
-
-    public void init() {
         mDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         if (mDisplay == EGL14.EGL_NO_DISPLAY) {
-            throw new RuntimeException("could not get egl14 display");
+            throw new RuntimeException("unable to get EGL14 display");
         }
         int[] version = new int[2];
         if (!EGL14.eglInitialize(mDisplay, version, 0, version, 1)) {
-            throw new RuntimeException("could not initialize egl14");
+            throw new RuntimeException("unable to initialize EGL14");
         }
-        int[] attrs = {
-                EGL14.EGL_RED_SIZE, mChooser.mRedBit,
-                EGL14.EGL_GREEN_SIZE, mChooser.mGreenBit,
-                EGL14.EGL_BLUE_SIZE, mChooser.mBlueBit,
-                EGL14.EGL_ALPHA_SIZE, mChooser.mAlphaBit,
-                EGL14.EGL_DEPTH_SIZE, mChooser.mWithDepth ? 16 : 0,
-                EGL14.EGL_STENCIL_SIZE, mChooser.mStencilBit,
-                EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
-                EGL_RECORDABLE_ANDROID, 1,
-                EGL14.EGL_NONE};
-        EGLConfig[] configs = new EGLConfig[1];
-        int[] numConfigs = new int[1];
-        EGL14.eglChooseConfig(
-                mDisplay, attrs, 0,
-                configs, 0, configs.length,
-                numConfigs, 0);
-        checkEglError("eglChooseConfig");
-        mConfig = configs[0];
+        if ((flags & FLAG_TRY_GLES3) != 0) {
+            EGLConfig config = getConfig(flags, 3);
+            if (config != null) {
+                int[] attrib3_list = {
+                        EGL14.EGL_CONTEXT_CLIENT_VERSION, 3,
+                        EGL14.EGL_NONE
+                };
+                EGLContext context = EGL14.eglCreateContext(mDisplay, config, sharedContext,
+                        attrib3_list, 0);
 
-        int[] contextAttrs = {
-                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
-                EGL14.EGL_NONE};
-        mContext = EGL14.eglCreateContext(mDisplay, mConfig, EGL14.EGL_NO_CONTEXT,
-                contextAttrs, 0);
-        checkEglError("eglCreateContext");
+                if (EGL14.eglGetError() == EGL14.EGL_SUCCESS) {
+                    Logger.d(TAG, "Got GLES 3 config");
+                    mConfig = config;
+                    mContext = context;
+                    mGlVersion = 3;
+                }
+            }
+        }
+        // GLES 2 only, or GLES 3 attempt failed
+        if (mContext == EGL14.EGL_NO_CONTEXT) {
+            Logger.d(TAG, "Trying GLES 2");
+            EGLConfig config = getConfig(flags, 2);
+            if (config == null) {
+                throw new RuntimeException("Unable to find a suitable EGLConfig");
+            }
+            int[] attrib2_list = {
+                    EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
+                    EGL14.EGL_NONE
+            };
+            EGLContext context = EGL14.eglCreateContext(mDisplay, config, sharedContext,
+                    attrib2_list, 0);
+            checkEglError("eglCreateContext");
+            mConfig = config;
+            mContext = context;
+            mGlVersion = 2;
+        }
+
+        // Confirm with query.
+        int[] values = new int[1];
+        EGL14.eglQueryContext(mDisplay, mContext, EGL14.EGL_CONTEXT_CLIENT_VERSION,
+                values, 0);
+        Logger.d(TAG, "EGLContext created, client version " + values[0]);
     }
 
-    public void resumeWindowSurface(Surface surfaceObject) {
-        if (mSurface != EGL14.EGL_NO_SURFACE) {
-            return;
-        }
-        if (surfaceObject == null || !surfaceObject.isValid()) {
-            throw new RuntimeException("eglCreateWindowSurface, but surface object is null");
+    public void createWindowSurface(Object surface) {
+        if (!(surface instanceof Surface) && !(surface instanceof SurfaceTexture)) {
+            throw new RuntimeException("invalid surface: " + surface);
         }
         int[] surfaceAttrs = {EGL14.EGL_NONE};
-        mSurface = EGL14.eglCreateWindowSurface(mDisplay, mConfig, surfaceObject, surfaceAttrs, 0);
+        mSurface = EGL14.eglCreateWindowSurface(mDisplay, mConfig, surface, surfaceAttrs, 0);
         checkEglError("eglCreateWindowSurface");
-
+        if (mSurface == null) {
+            throw new RuntimeException("surface was null");
+        }
         EGL14.eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
         checkEglError("eglMakeCurrent");
     }
 
-    public void resumePbufferSurface(Surface surfaceObject, int width, int height) {
-        if (mSurface != EGL14.EGL_NO_SURFACE) {
-            return;
-        }
+    public void createOffscreenSurface(int width, int height) {
         if (width <= 0 || height <= 0) {
             throw new RuntimeException("eglCreatePbufferSurface, but width or height < 0");
         }
@@ -121,7 +134,9 @@ public class EglHelper {
                 EGL14.EGL_NONE};
         mSurface = EGL14.eglCreatePbufferSurface(mDisplay, mConfig, pbAttrs, 0);
         checkEglError("eglCreatePbufferSurface");
-
+        if (mSurface == null) {
+            throw new RuntimeException("surface was null");
+        }
         EGL14.eglMakeCurrent(mDisplay, mSurface, mSurface, mContext);
         checkEglError("eglMakeCurrent");
     }
@@ -130,8 +145,7 @@ public class EglHelper {
         if (mSurface == EGL14.EGL_NO_SURFACE) {
             return;
         }
-        EGL14.eglMakeCurrent(mDisplay, EGL14.EGL_NO_SURFACE,
-                EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+        EGL14.eglMakeCurrent(mDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
         EGL14.eglDestroySurface(mDisplay, mSurface);
         mSurface = EGL14.EGL_NO_SURFACE;
     }
@@ -139,7 +153,11 @@ public class EglHelper {
     public void destroy() {
         pause();
         EGL14.eglDestroyContext(mDisplay, mContext);
+        EGL14.eglReleaseThread();
         EGL14.eglTerminate(mDisplay);
+        mDisplay = EGL14.EGL_NO_DISPLAY;
+        mContext = EGL14.EGL_NO_CONTEXT;
+        mConfig = null;
     }
 
     public void swapBuffers() {
@@ -148,53 +166,59 @@ public class EglHelper {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void setPresentationTime(long presentationTime) {
         if (null != mDisplay && null != mSurface) {
             EGLExt.eglPresentationTimeANDROID(mDisplay, mSurface, presentationTime);
         }
     }
 
-    public static class Chooser {
-        int mRedBit;
-        int mGreenBit;
-        int mBlueBit;
-        int mAlphaBit;
-        int mStencilBit;
-        boolean mWithDepth;
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            if (mDisplay != EGL14.EGL_NO_DISPLAY) {
+                // We're limited here -- finalizers don't run on the thread that holds
+                // the EGL state, so if a surface or context is still current on another
+                // thread we can't fully release it here.  Exceptions thrown from here
+                // are quietly discarded.  Complain in the log file.
+                Logger.w(TAG, "WARNING: EglCore was not explicitly released -- state may be leaked");
+                destroy();
+            }
+        } finally {
+            super.finalize();
+        }
+    }
 
-        public Chooser() {
-
+    private EGLConfig getConfig(int flags, int version) {
+        int renderableType = EGL14.EGL_OPENGL_ES2_BIT;
+        if (version >= 3) {
+            renderableType |= EGLExt.EGL_OPENGL_ES3_BIT_KHR;
         }
 
-        public Chooser setRedBit(int redBit) {
-            mRedBit = redBit;
-            return this;
+        // The actual surface is generally RGBA or RGBX, so situationally omitting alpha
+        // doesn't really help.  It can also lead to a huge performance hit on glReadPixels()
+        // when reading into a GL_RGBA buffer.
+        int[] attribList = {
+                EGL14.EGL_RED_SIZE, 8,
+                EGL14.EGL_GREEN_SIZE, 8,
+                EGL14.EGL_BLUE_SIZE, 8,
+                EGL14.EGL_ALPHA_SIZE, 8,
+                //EGL14.EGL_DEPTH_SIZE, 16,
+                //EGL14.EGL_STENCIL_SIZE, 8,
+                EGL14.EGL_RENDERABLE_TYPE, renderableType,
+                EGL14.EGL_NONE, 0,      // placeholder for recordable [@-3]
+                EGL14.EGL_NONE
+        };
+        if ((flags & FLAG_RECORDABLE) != 0) {
+            attribList[attribList.length - 3] = EGL_RECORDABLE_ANDROID;
+            attribList[attribList.length - 2] = 1;
         }
-
-        public Chooser setGreenBit(int greenBit) {
-            mGreenBit = greenBit;
-            return this;
+        EGLConfig[] configs = new EGLConfig[1];
+        int[] numConfigs = new int[1];
+        if (!EGL14.eglChooseConfig(mDisplay, attribList, 0, configs, 0, configs.length,
+                numConfigs, 0)) {
+            Logger.w(TAG, "unable to find RGB8888 / " + version + " EGLConfig");
+            return null;
         }
-
-        public Chooser setBlueBit(int blueBit) {
-            mBlueBit = blueBit;
-            return this;
-        }
-
-        public Chooser setAlphaBit(int alphaBit) {
-            mAlphaBit = alphaBit;
-            return this;
-        }
-
-        public Chooser setStencilBit(int stencilBit) {
-            mStencilBit = stencilBit;
-            return this;
-        }
-
-        public Chooser setWithDepth(boolean withDepth) {
-            mWithDepth = withDepth;
-            return this;
-        }
+        return configs[0];
     }
 }

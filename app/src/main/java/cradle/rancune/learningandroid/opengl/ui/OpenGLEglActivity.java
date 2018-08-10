@@ -39,7 +39,7 @@ public class OpenGLEglActivity extends BaseActivity implements SurfaceHolder.Cal
     @Override
     public void initData() {
         // egl
-        mEglHelper = new EglHelper(EglHelper.getDefaultChooser());
+        mEglHelper = new EglHelper();
 
         // filter
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -73,7 +73,7 @@ public class OpenGLEglActivity extends BaseActivity implements SurfaceHolder.Cal
                 if (mEglHelper == null || mFilter == null) {
                     return;
                 }
-                mEglHelper.init();
+                mEglHelper.init(null, EglHelper.FLAG_TRY_GLES3 | EglHelper.FLAG_RECORDABLE);
             }
         });
     }
@@ -87,7 +87,7 @@ public class OpenGLEglActivity extends BaseActivity implements SurfaceHolder.Cal
                     return;
                 }
                 // egl make current
-                mEglHelper.resumeWindowSurface(holder.getSurface());
+                mEglHelper.createWindowSurface(holder.getSurface());
 
                 int texture = GLHelper.load2DTexture();
                 mFilter.setTextureId(texture);

@@ -113,7 +113,7 @@ public class VideoWorker implements Runnable {
             mRecorder.onStart(mConfig, mEncoder.getSurface());
         }
 
-        // screen capture
+        // start encode raw data
         try {
             mEncoder.start();
         } catch (Exception e) {
