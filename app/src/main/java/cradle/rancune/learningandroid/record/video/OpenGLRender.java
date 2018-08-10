@@ -112,7 +112,7 @@ public class OpenGLRender {
 
     public OpenGLRender() {
         mVertexBuffer = GLHelper.createFloatBuffer(VERTICES);
-        mTextureCoordBuffer = GLHelper.createFloatBuffer(TEXTURECOORDS);
+        mTextureCoordBuffer = GLHelper.createFloatBuffer(CAMERACOORDS);
     }
 
     public boolean init(int renderWidth, int renderHeight, Surface surface, Bitmap watermark) {

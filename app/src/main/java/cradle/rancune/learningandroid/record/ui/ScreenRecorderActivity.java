@@ -24,7 +24,7 @@ import cradle.rancune.learningandroid.record.audio.AudioWorker;
 import cradle.rancune.learningandroid.record.muxer.EncodedData;
 import cradle.rancune.learningandroid.record.muxer.MutexCallback;
 import cradle.rancune.learningandroid.record.muxer.ScreenCaptureMuxer;
-import cradle.rancune.learningandroid.record.video.MediaProjectionHolder;
+import cradle.rancune.learningandroid.record.video.MediaProjectionHelper;
 import cradle.rancune.learningandroid.record.video.ScreenCapture;
 import cradle.rancune.learningandroid.record.video.VideoConfig;
 import cradle.rancune.learningandroid.record.video.VideoRecorder;
@@ -35,6 +35,7 @@ import cradle.rancune.learningandroid.record.video.VideoWorker;
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class ScreenRecorderActivity extends BaseActivity implements View.OnClickListener {
+    private static final int REQUEST_CODE_MEDIAPROJECTION = 100;
 
     // audio
     private AudioConfig mAudioConfig;
@@ -85,21 +86,23 @@ public class ScreenRecorderActivity extends BaseActivity implements View.OnClick
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        boolean result = MediaProjectionHolder.getInstance().resolveMediaProjection(resultCode, data);
-        if (!result) {
-            Toast.makeText(this, R.string.toast_record_screen_permission_denied, Toast.LENGTH_SHORT).show();
-            return;
+        if (requestCode == REQUEST_CODE_MEDIAPROJECTION) {
+            mMediaProjection = MediaProjectionHelper.resolveMediaProjection(this, resultCode, data);
+            if (mMediaProjection == null) {
+                Toast.makeText(this, R.string.toast_record_screen_permission_denied, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            setupRecod();
         }
-        mMediaProjection = MediaProjectionHolder.getInstance().getMediaProjection();
-
-        setupRecod();
     }
 
     private void start() {
-        boolean result = MediaProjectionHolder.getInstance().requestMediaProjection(this);
-        if (!result) {
+        Intent intent = MediaProjectionHelper.requestMediaProjection(this);
+        if (intent == null) {
             Toast.makeText(this, R.string.toast_record_screen_not_available, Toast.LENGTH_SHORT).show();
+            return;
         }
+        startActivityForResult(intent, REQUEST_CODE_MEDIAPROJECTION);
     }
 
     private void stop() {

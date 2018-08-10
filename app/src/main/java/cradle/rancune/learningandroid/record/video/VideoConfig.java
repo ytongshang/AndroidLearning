@@ -13,6 +13,7 @@ import android.view.WindowManager;
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class VideoConfig {
+
     public enum Quality {
         SHD(1280, 720, 1000 * 2000),
         HD(640, 480, 1000 * 1000),
@@ -40,17 +41,26 @@ public class VideoConfig {
         }
     }
 
-    private String mime = "video/avc";// 编码视频格式
-    private boolean alignDevice = true;
-    private int width = 1280;   // 编码器编码视频宽
-    private int height = 720;   // 编码器编码视频高
-    private int dpi = 1;        // dpi
-    private int frameRate = 24; // 1s内视频帧 fps
-    private int iFrameRate = 2; // 2s内1个关键帧
-    private int bitRate = 1000 * 2000; // 比特率/码率 2000kbps
+    /**
+     * H.264/AVC video
+     */
+    private String mime = "video/avc";
+    private int width = 1280;
+    private int height = 720;
+    private int dpi = 1;
+    private int frameRate = 24;
+    /**
+     * 关键帧
+     */
+    private int iFrameRate = 2;
+    private int bitRate = 1000 * 2000;
     private int colorFormat = MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
     private int orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-    private float screenRatio = -1; // 屏幕长宽比 1280 : 720 = 16 : 9
+
+    /**
+     * 屏幕长宽比,这里必须大于1
+     */
+    private float screenRatio = -1;
 
     public VideoConfig(Context context) {
         calculateRatio(context);
@@ -68,11 +78,6 @@ public class VideoConfig {
         return (screenPortraitHeight * density) / (screenPortraitWidth * density);
     }
 
-
-    public int getDpi() {
-        return dpi;
-    }
-
     public String getMime() {
         return mime;
     }
@@ -83,6 +88,10 @@ public class VideoConfig {
 
     public int getHeight() {
         return height;
+    }
+
+    public int getDpi() {
+        return dpi;
     }
 
     public int getFrameRate() {
@@ -100,4 +109,60 @@ public class VideoConfig {
     public int getColorFormat() {
         return colorFormat;
     }
+
+    private boolean aligned = false;
+    private boolean alignDevice = true;
+
+    public VideoConfig alignDevice(boolean alignDevice) {
+        this.alignDevice = alignDevice;
+        return this;
+    }
+
+    private void alignDevice() {
+        if (!alignDevice) {
+            return;
+        }
+        if (screenRatio < 1) {
+            throw new IllegalArgumentException("screenRatio must be > 1, like 1280/720");
+        }
+
+        if (aligned) {
+            return;
+        }
+        int oldWidth = getWidth();
+        int oldHeight = getHeight();
+
+        int newHeight = oldHeight;
+        int newWidth;
+        if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            newWidth = (int) (oldHeight * screenRatio);
+        } else {
+            newWidth = (int) (oldHeight / screenRatio);
+        }
+
+        // 16-align for device compatibility
+        newWidth = (newWidth + 15) / 16 * 16;
+        newHeight = (newHeight + 15) / 16 * 16;
+        this.width = newWidth;
+        this.height = newHeight;
+        aligned = true;
+    }
+
+    public VideoConfig orientation(int orientation) {
+        this.orientation = orientation;
+        int oldWidth = getWidth();
+        int oldHeight = getHeight();
+        if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            this.width = Math.max(oldWidth, oldHeight);
+            this.height = Math.min(oldWidth, oldHeight);
+        } else if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            this.width = Math.min(oldWidth, oldHeight);
+            this.height = Math.max(oldWidth, oldHeight);
+        }
+
+        alignDevice();
+        return this;
+    }
+
+
 }
