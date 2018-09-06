@@ -5,18 +5,24 @@ import android.media.AudioFormat;
 /**
  * Created by Rancune@126.com 2018/7/24.
  * https://www.jianshu.com/p/c398754e5984
+ * https://blog.csdn.net/charleslei/article/details/53099428
  */
 public class AudioConfig {
     /**
      * 音频采样频率，单位：赫兹（Hz），常用采样频率：8000，12050，22050，44100等
+     *
+     * @see android.media.AudioRecord
+     * 目前44100可以保证在所有的android上工作
      */
     private int sampleRate = 44100;
     /**
      * 声道
+     * AudioFormat.CHANNEL_IN_MONO保证在所有的android上工作
      */
     private int channel = AudioFormat.CHANNEL_IN_MONO;
     /**
      * 每个声音采样点用16bit表示
+     * AudioFormat.ENCODING_PCM_16BIT保证在所有的android上工作
      */
     private int format = AudioFormat.ENCODING_PCM_16BIT;
     private int samplePerFrame = 2048;
@@ -25,7 +31,8 @@ public class AudioConfig {
     private String mime = "audio/mp4a-latm";
     /**
      * 音频码率，单位：比特每秒（bit/s），常用码率：64k，128k，192k，256k，320k等。
-     * 以默认配置算 bitrate 44100*16*1 =  705600
+     * 原如的码率 44100*16*1 = 705600
+     * 经过压缩算法压缩后，使用64k
      */
     private int bitRate = 64000;
 

@@ -22,6 +22,12 @@ public class ScreenCapture implements SurfaceTexture.OnFrameAvailableListener {
     private static final String DEFAULT_DISPLAY_NAME = "rancune_display";
     private static final String CAPTURE_DISPLAY_NAME = "rancune_capture_display";
 
+    public static final int LOCATION_LEFT_TOP = 0;
+    public static final int LOCATION_LEFT_BOTTOM = 1;
+    public static final int LOCATION_RIGHT_TOP = 2;
+    public static final int LOCATION_RIGHT_BOTTOM = 3;
+    private int mWaterMarkLocation = LOCATION_RIGHT_TOP;
+
     private static final long ONE_SECOND_IN_NS = TimeUnit.SECONDS.toNanos(1);
 
     private boolean mIsInited = false;

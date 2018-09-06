@@ -26,11 +26,11 @@ public class AudioEncoder {
     private RecordCallback mCallback;
 
     /**
-     * 每秒钟采集的数据大小
+     * 每秒钟采集的原始PCM数据大小
      */
     private final int mSampleByteSizeInSec;
 
-    private long mLastPresentationTimeUs;
+    private long mLastPresentationTimeUs = 0;
     private long mPresentationInterval = 0;
     private long mLastFrameEncodeEndTimeUs = 0;
     private boolean mUnExpectedEndOfStream = false;
@@ -71,10 +71,11 @@ public class AudioEncoder {
 
                 // read from audioRecord
                 int readSize = record.read(buffer, buffer.remaining());
-                if (readSize == AudioRecord.ERROR_INVALID_OPERATION
+                if (readSize == AudioRecord.ERROR
                         || readSize == AudioRecord.ERROR_BAD_VALUE
+                        || readSize == AudioRecord.ERROR_INVALID_OPERATION
                         || readSize == AudioRecord.ERROR_DEAD_OBJECT) {
-                    Logger.w(TAG, "read freom AudioRecord failed, error=" + readSize);
+                    Logger.w(TAG, "read from AudioRecord failed, error=" + readSize);
                 } else {
                     int flag = endOfStream ? MediaCodec.BUFFER_FLAG_END_OF_STREAM : 0;
                     mEncoder.queueInputBuffer(buffIndex, 0, readSize, mLastPresentationTimeUs, flag);

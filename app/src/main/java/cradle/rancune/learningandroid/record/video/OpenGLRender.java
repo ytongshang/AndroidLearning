@@ -91,6 +91,7 @@ public class OpenGLRender {
 
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mTextureCoordBuffer;
+    private FloatBuffer mWatermarkBuffer;
 
     private int mRenderWidth;
     private int mRenderHeight;
@@ -185,7 +186,7 @@ public class OpenGLRender {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void doRender(float[] mvpMatrix, float[] textureMatrix, long presentationTime) {
-        if (!mIsInited || mvpMatrix == null) {
+        if (!mIsInited || mvpMatrix == null || textureMatrix == null) {
             return;
         }
 
@@ -225,6 +226,10 @@ public class OpenGLRender {
 
     public int getOESTexture() {
         return mTextures[TEXTURE_INDEX_OES];
+    }
+
+    public void updateWatermarkLocation(int location) {
+
     }
 
     private int[] createTextures() {
