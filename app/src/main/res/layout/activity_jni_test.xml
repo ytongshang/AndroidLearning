@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tv_string_from_native"
+        style="@style/normal_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/jni_getStringFromNative" />
+
+
+    <TextView
+        android:id="@+id/tv_native_addNum"
+        style="@style/normal_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/jni_addNum" />
+
+
+    <TextView
+        android:id="@+id/tv_native_set_normal_field"
+        style="@style/normal_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/jni_setNormalField" />
+
+    <TextView
+        android:id="@+id/tv_native_set_static_field"
+        style="@style/normal_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/jni_setStaticField" />
+
+</LinearLayout>

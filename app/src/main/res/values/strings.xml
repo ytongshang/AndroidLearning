@@ -9,6 +9,7 @@
     <string name="activity_aidl">学习AIDL</string>
     <string name="activity_opengl">OpenglES</string>
     <string name="activity_record">Record</string>
+    <string name="activity_jni">JNI</string>
 
     <!--opengl-->
     <string name="activity_opengl1">OpenGL简介</string>
@@ -36,4 +37,11 @@
     <string name="toast_record_screen_not_available">该手机不支持录屏！</string>
     <string name="toast_record_screen_permission_denied">录屏权限被拒绝了，你还想干嘛</string>
     <string name="toast_record_screen_muxer_failed">合成视频失败了！！！</string>
+
+
+
+    <string name="jni_getStringFromNative">getStringFromNative:%s</string>
+    <string name="jni_addNum">addNum:%d</string>
+    <string name="jni_setNormalField">setNormalField:%s</string>
+    <string name="jni_setStaticField">setStaticField:%s</string>
 </resources>

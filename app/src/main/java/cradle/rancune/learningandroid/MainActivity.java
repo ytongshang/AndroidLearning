@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cradle.rancune.learningandroid.aidl.client.BookManagerClientActivity;
+import cradle.rancune.learningandroid.jni.JniTestActivity;
 import cradle.rancune.learningandroid.opengl.OpenGLMainActivity;
 import cradle.rancune.learningandroid.record.RecordMainActivity;
 
@@ -39,15 +40,20 @@ public class MainActivity extends BaseActivity {
         aidl.target = BookManagerClientActivity.class;
         mPages.add(aidl);
 
-        Page opengl01 = new Page();
-        opengl01.title = R.string.activity_opengl;
-        opengl01.target = OpenGLMainActivity.class;
-        mPages.add(opengl01);
+        Page opengl = new Page();
+        opengl.title = R.string.activity_opengl;
+        opengl.target = OpenGLMainActivity.class;
+        mPages.add(opengl);
 
         Page record = new Page();
         record.title = R.string.activity_record;
         record.target = RecordMainActivity.class;
         mPages.add(record);
+
+        Page jni = new Page();
+        jni.title = R.string.activity_jni;
+        jni.target = JniTestActivity.class;
+        mPages.add(jni);
 
         mAdapter.notifyDataSetChanged();
     }

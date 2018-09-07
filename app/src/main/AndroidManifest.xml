@@ -66,6 +66,10 @@
         <activity
             android:name=".record.ui.ScreenRecorderActivity" />
 
+
+        <activity android:name=".jni.JniTestActivity"
+            android:theme="@style/AppTheme"/>
+
     </application>
 
 </manifest>

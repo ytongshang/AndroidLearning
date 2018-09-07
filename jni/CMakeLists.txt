@@ -7,4 +7,4 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             src/main/cpp/tv_chushou_basis_rtmp_JniUtils.cpp)
+             src/main/cpp/cradle_rancune_learningandroid_jni_JniUtils.cpp)
